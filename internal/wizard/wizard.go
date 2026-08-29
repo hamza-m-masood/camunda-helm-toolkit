@@ -25,8 +25,10 @@ package wizard
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/capacityplan"
+	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
 )
 
@@ -43,6 +45,12 @@ type Answers struct {
 	EnableConnectors bool
 	EnableOptimize   bool
 	EnableWebModeler bool
+	// WebModelerFromEmail is required if EnableWebModeler is true: the chart's own
+	// webModeler.restapi.mail.fromAddress is guarded by a hard Helm `required` template
+	// call (templates/web-modeler/configmap-restapi.yaml) with no values.yaml default,
+	// so `helm template`/`helm install` fails outright with Web Modeler enabled and this
+	// unset -- confirmed by actually rendering the chart with it empty.
+	WebModelerFromEmail string
 
 	// SecondaryStorageType is elasticsearch|opensearch|rdbms. Required: the chart's
 	// own constraints.tpl fails the render entirely without one set, on every version
@@ -86,6 +94,9 @@ func (a Answers) validate() error {
 		}
 	default:
 		return fmt.Errorf("AuthMethod must be basic or oidc, got %q", a.AuthMethod)
+	}
+	if a.EnableWebModeler && a.WebModelerFromEmail == "" {
+		return fmt.Errorf("WebModelerFromEmail is required when EnableWebModeler is true")
 	}
 	return nil
 }
@@ -175,6 +186,9 @@ func Build(a Answers, chartDefaults values.Values) (values.Values, []string, err
 	} {
 		values.SetPath(out, name+".enabled", on)
 	}
+	if a.EnableWebModeler {
+		values.SetPath(out, "webModeler.restapi.mail.fromAddress", a.WebModelerFromEmail)
+	}
 
 	if a.IngressHost != "" {
 		values.SetPath(out, "global.ingress.enabled", true)
@@ -231,4 +245,21 @@ func Build(a Answers, chartDefaults values.Values) (values.Values, []string, err
 	)
 
 	return out, notes, nil
+}
+
+// IsDocumentedException reports whether f is one of the three findings documented in
+// this package's doc comment as unclosable via values.yaml -- the single definition
+// both this package's own self-check tests and `init`'s runtime self-check share, so
+// they cannot silently drift apart on what counts as an accepted exception.
+func IsDocumentedException(f rules.Finding) bool {
+	if f.RuleID == "CCD008" {
+		return true
+	}
+	if f.RuleID == "CCD015" {
+		return true
+	}
+	if f.RuleID == "CCD003" && strings.HasPrefix(f.Path, "identityKeycloak.") {
+		return true
+	}
+	return false
 }

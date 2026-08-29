@@ -30,6 +30,8 @@ func main() {
 	}
 	report.ToolVersion = version
 	switch os.Args[1] {
+	case "init":
+		os.Exit(runInit(os.Args[2:]))
 	case "check":
 		os.Exit(runCheck(os.Args[2:]))
 	case "upgrade":
@@ -63,6 +65,7 @@ func printUsage() {
 	fmt.Println(`camunda-chart-doctor — pre-flight, live, and upgrade checks for Camunda 8 Self-Managed Helm installs
 
 USAGE:
+  camunda-chart-doctor init --chart <path>                            Build a self-checking starter values.yaml
   camunda-chart-doctor check --chart <path> [-f values.yaml]...       Pre-install: chart + overlay(s)
   camunda-chart-doctor check --release <name> -n <namespace>          Post-install: an installed release
                               [--chart <path>] [--live]

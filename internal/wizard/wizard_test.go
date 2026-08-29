@@ -2,7 +2,6 @@ package wizard
 
 import (
 	"os/exec"
-	"strings"
 	"testing"
 
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
@@ -102,19 +101,6 @@ func runValuesChecks(t *testing.T, v values.Values) []rules.Finding {
 	return findings
 }
 
-// isDocumentedException reports whether f is one of the three exceptions documented
-// in this package's doc comment -- kept in one place so the synthetic-fixture test and
-// the real-chart test can't silently drift apart on what counts as expected.
-func isDocumentedException(f rules.Finding) bool {
-	if f.RuleID == "CCD008" {
-		return true
-	}
-	if f.RuleID == "CCD003" && strings.HasPrefix(f.Path, "identityKeycloak.") {
-		return true
-	}
-	return false
-}
-
 // TestBuild_NeverTripsItsOwnRules is this package's equivalent of capacityplan's
 // TestRecommend_NeverTripsItsOwnRules: init's entire reason to exist is that its output
 // already passes `check`, so this must hold across a real matrix of answers, not just
@@ -134,6 +120,7 @@ func TestBuild_NeverTripsItsOwnRules(t *testing.T) {
 		{"every optional component on", func() Answers {
 			a := baseAnswers()
 			a.EnableIdentity, a.EnableConnectors, a.EnableOptimize, a.EnableWebModeler = true, true, true, true
+			a.WebModelerFromEmail = "camunda@example.invalid"
 			return a
 		}()},
 		{"oidc auth", func() Answers {
@@ -164,6 +151,7 @@ func TestBuild_NeverTripsItsOwnRules(t *testing.T) {
 			a := baseAnswers()
 			a.ThroughputPerSec, a.AvgPayloadKB, a.RetentionDays = 5000, 32, 90
 			a.EnableIdentity, a.EnableConnectors, a.EnableOptimize, a.EnableWebModeler = true, true, true, true
+			a.WebModelerFromEmail = "camunda@example.invalid"
 			return a
 		}()},
 	}
@@ -183,7 +171,7 @@ func TestBuild_NeverTripsItsOwnRules(t *testing.T) {
 
 			var unexpected []rules.Finding
 			for _, f := range findings {
-				if isDocumentedException(f) {
+				if IsDocumentedException(f) {
 					continue
 				}
 				unexpected = append(unexpected, f)
@@ -268,6 +256,7 @@ func TestBuild_NeverTripsItsOwnRules_RealChart(t *testing.T) {
 
 			a := baseAnswers()
 			a.EnableIdentity, a.EnableConnectors, a.EnableOptimize, a.EnableWebModeler = true, true, true, true
+			a.WebModelerFromEmail = "camunda@example.invalid"
 			a.ThroughputPerSec, a.AvgPayloadKB = 800, 2
 
 			generated, _, err := Build(a, chartDefaults)
@@ -277,7 +266,7 @@ func TestBuild_NeverTripsItsOwnRules_RealChart(t *testing.T) {
 			merged := values.DeepMerge(chartDefaults, generated)
 			var unexpected []rules.Finding
 			for _, f := range runValuesChecks(t, merged) {
-				if isDocumentedException(f) {
+				if IsDocumentedException(f) {
 					continue
 				}
 				unexpected = append(unexpected, f)
