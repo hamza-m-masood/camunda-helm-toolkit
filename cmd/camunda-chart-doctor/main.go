@@ -13,9 +13,12 @@ import (
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/live"
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/report"
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-chart-doctor/internal/suppress"
 	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
 	"gopkg.in/yaml.v3"
 )
+
+const defaultIgnoreFile = ".chartdoctor-ignore.yaml"
 
 // version is set at release build time via -ldflags "-X main.version=...".
 var version = "dev"
@@ -64,6 +67,8 @@ FLAGS (check):
   --json                   Emit findings as JSON instead of text
   --no-color               Disable ANSI color in text output
   --fail-on string         Minimum severity causing a nonzero exit: critical|high|medium|low (default "high")
+  --ignore-file string     Suppression file (default: auto-load .chartdoctor-ignore.yaml from cwd if present)
+  --show-suppressed        Also print/emit suppressed findings, not just their count
 
 FLAGS (upgrade):
   --release string         Installed Helm release name (reads the values you supplied, not chart defaults)
@@ -102,6 +107,8 @@ func runCheck(args []string) int {
 	jsonOut := fs.Bool("json", false, "JSON output")
 	noColor := fs.Bool("no-color", false, "disable color")
 	failOn := fs.String("fail-on", "high", "minimum severity for nonzero exit")
+	ignoreFile := fs.String("ignore-file", "", "suppression file (default: auto-load "+defaultIgnoreFile+" from cwd)")
+	showSuppressed := fs.Bool("show-suppressed", false, "also print/emit suppressed findings")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -143,16 +150,43 @@ func runCheck(args []string) int {
 		}
 	}
 
+	kept, suppressed, err := applySuppressions(findings, *ignoreFile)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+		return 2
+	}
+
 	if *jsonOut {
-		if err := report.WriteJSON(os.Stdout, findings); err != nil {
+		if err := report.WriteJSON(os.Stdout, kept, suppressed, *showSuppressed); err != nil {
 			fmt.Fprintln(os.Stderr, "error:", err)
 			return 2
 		}
 	} else {
-		report.WriteText(os.Stdout, findings, !*noColor)
+		report.WriteText(os.Stdout, kept, suppressed, *showSuppressed, !*noColor)
 	}
 
-	return exitCode(findings, *failOn)
+	return exitCode(kept, *failOn)
+}
+
+// applySuppressions loads a suppression file (explicit path, or an auto-detected
+// .chartdoctor-ignore.yaml in cwd) and splits findings into kept/suppressed. An
+// explicitly-named file that fails to load is an error; a missing auto-detected file
+// just means "no suppressions configured".
+func applySuppressions(findings []rules.Finding, ignoreFile string) (kept, suppressed []rules.Finding, err error) {
+	path := ignoreFile
+	explicit := path != ""
+	if path == "" {
+		path = defaultIgnoreFile
+	}
+	f, loadErr := suppress.Load(path)
+	if loadErr != nil {
+		if explicit || !os.IsNotExist(loadErr) {
+			return nil, nil, loadErr
+		}
+		return findings, nil, nil
+	}
+	kept, suppressed = f.Apply(findings)
+	return kept, suppressed, nil
 }
 
 func resolveEffectiveValues(chart, release, namespace string, overlays multiFlag) (values.Values, error) {
