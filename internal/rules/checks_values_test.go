@@ -42,11 +42,18 @@ func TestBadFixtureTripsEveryRule(t *testing.T) {
 	findings := runAll(v)
 	ids := findingIDs(findings)
 
-	want := []string{"CCD001", "CCD002", "CCD003", "CCD004", "CCD005", "CCD006", "CCD007", "CCD008"}
+	want := []string{
+		"CCD001", "CCD002", "CCD003", "CCD004", "CCD005", "CCD006", "CCD007", "CCD008",
+		"CCD013", "CCD014", "CCD016",
+	}
 	for _, id := range want {
 		if ids[id] == 0 {
 			t.Errorf("expected rule %s to fire on bad.yaml, but it did not (findings: %+v)", id, findings)
 		}
+	}
+	// CCD014 should fire twice — both bundled Postgres subcharts are enabled with backup off.
+	if ids["CCD014"] != 2 {
+		t.Errorf("expected CCD014 to fire twice (two bundled subcharts), got %d", ids["CCD014"])
 	}
 	// CCD004 should fire twice — both demo/demo and connectors/connector are present.
 	if ids["CCD004"] != 2 {
