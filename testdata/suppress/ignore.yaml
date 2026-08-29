@@ -1,0 +1,6 @@
+suppress:
+  - ruleId: CCD002
+    path: identity.resources
+    reason: "identity is intentionally run Burstable in this cluster to save cost — accepted tradeoff, reviewed 2026-08."
+  - ruleId: CCD004
+    reason: "this is a disposable local dev cluster, not reachable from outside the cluster network."

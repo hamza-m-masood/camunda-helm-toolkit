@@ -39,48 +39,86 @@ func colorFor(s rules.Severity) string {
 	}
 }
 
-// WriteText renders findings as human-readable text.
-func WriteText(w io.Writer, findings []rules.Finding, useColor bool) {
-	if len(findings) == 0 {
-		fmt.Fprintln(w, "No findings — every check passed.")
-		fmt.Fprintln(w, "(Passing does not certify this deployment as production-ready — see README.)")
-		return
+func writeFinding(w io.Writer, f rules.Finding, useColor bool) {
+	c, reset := "", ""
+	if useColor {
+		c, reset = colorFor(f.Severity), colReset
 	}
+	fmt.Fprintf(w, "%s[%s]%s %s  (%s)\n", c, f.Severity, reset, f.Title, f.RuleID)
+	if f.Path != "" {
+		fmt.Fprintf(w, "  path: %s\n", f.Path)
+	}
+	if f.Detail != "" {
+		fmt.Fprintf(w, "  %s\n", f.Detail)
+	}
+	if f.Remediation != "" {
+		fmt.Fprintf(w, "  fix:  %s\n", f.Remediation)
+	}
+	fmt.Fprintln(w)
+}
+
+// WriteText renders findings as human-readable text. suppressed findings never
+// silently vanish: their count is always in the summary line, and their detail is
+// printed too when showSuppressed is true.
+func WriteText(w io.Writer, findings, suppressed []rules.Finding, showSuppressed, useColor bool) {
 	Sort(findings)
+	Sort(suppressed)
 	counts := map[rules.Severity]int{}
 	for _, f := range findings {
 		counts[f.Severity]++
 	}
-	fmt.Fprintf(w, "%d finding(s): %d critical, %d high, %d medium, %d low\n\n",
-		len(findings), counts[rules.Critical], counts[rules.High], counts[rules.Medium], counts[rules.Low])
-	for _, f := range findings {
-		c, reset := "", ""
-		if useColor {
-			c, reset = colorFor(f.Severity), colReset
+	suffix := ""
+	if len(suppressed) > 0 {
+		suffix = fmt.Sprintf(", %d suppressed", len(suppressed))
+		if !showSuppressed {
+			suffix += " (see --show-suppressed)"
 		}
-		fmt.Fprintf(w, "%s[%s]%s %s  (%s)\n", c, f.Severity, reset, f.Title, f.RuleID)
-		if f.Path != "" {
-			fmt.Fprintf(w, "  path: %s\n", f.Path)
+	}
+	if len(findings) == 0 {
+		fmt.Fprintf(w, "No findings — every check passed%s.\n", suffix)
+		fmt.Fprintln(w, "(Passing does not certify this deployment as production-ready — see README.)")
+	} else {
+		fmt.Fprintf(w, "%d finding(s): %d critical, %d high, %d medium, %d low%s\n\n",
+			len(findings), counts[rules.Critical], counts[rules.High], counts[rules.Medium], counts[rules.Low], suffix)
+		for _, f := range findings {
+			writeFinding(w, f, useColor)
 		}
-		if f.Detail != "" {
-			fmt.Fprintf(w, "  %s\n", f.Detail)
+	}
+	if showSuppressed && len(suppressed) > 0 {
+		fmt.Fprintln(w, "--- suppressed (still true, acknowledged via .chartdoctor-ignore.yaml) ---")
+		for _, f := range suppressed {
+			writeFinding(w, f, useColor)
 		}
-		if f.Remediation != "" {
-			fmt.Fprintf(w, "  fix:  %s\n", f.Remediation)
-		}
-		fmt.Fprintln(w)
 	}
 }
 
-// WriteJSON renders findings as a JSON array for CI/machine consumption.
-func WriteJSON(w io.Writer, findings []rules.Finding) error {
+// Result is the JSON/SARIF-adjacent machine-readable shape: kept findings plus a
+// suppression count that is always present, so a suppression file can never make a
+// problem invisible to a script parsing this output — only unenforced.
+type Result struct {
+	Findings        []rules.Finding `json:"findings"`
+	SuppressedCount int             `json:"suppressedCount"`
+	Suppressed      []rules.Finding `json:"suppressed,omitempty"`
+}
+
+// WriteJSON renders findings (and, if requested, suppressed findings) as JSON for
+// CI/machine consumption.
+func WriteJSON(w io.Writer, findings, suppressed []rules.Finding, showSuppressed bool) error {
 	Sort(findings)
+	Sort(suppressed)
 	if findings == nil {
 		findings = []rules.Finding{}
 	}
+	res := Result{Findings: findings, SuppressedCount: len(suppressed)}
+	if showSuppressed {
+		res.Suppressed = suppressed
+		if res.Suppressed == nil {
+			res.Suppressed = []rules.Finding{}
+		}
+	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	return enc.Encode(findings)
+	return enc.Encode(res)
 }
 
 // WriteJSONValue emits an arbitrary payload as indented JSON. The upgrade command
