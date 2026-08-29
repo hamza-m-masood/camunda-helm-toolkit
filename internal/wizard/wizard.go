@@ -3,7 +3,7 @@
 // driven form over every field the chart exposes. The point of `init` is not "a valid
 // values.yaml" (any hand-written one can be that); it is "a values.yaml that already
 // passes every check rule this tool knows how to close via values.yaml alone" -- see
-// Build's three documented exceptions for the ones it cannot close and why:
+// Build's four documented exceptions for the ones it cannot close and why:
 //
 //   - CCD008 (digest pinning): the correct digest is specific to the exact chart
 //     release installed, and this package has no way to know that in advance.
@@ -18,6 +18,18 @@
 //     unlike the CCD002 fix below, which only ever reads a value the same document
 //     already ships. 8.10 removed the bundled subchart this path belongs to, so this
 //     exception is inert there.
+//   - CCD010 on the two ConfigMaps that render orchestration.security.initialization.
+//     users verbatim: <fullname>-zeebe-configuration (templates/orchestration/files/
+//     _application.yaml, `... | toYaml`) and <fullname>-connectors-configuration
+//     (templates/connectors/files/_application.yaml, `$user := first
+//     .Values.orchestration.security.initialization.users`) -- confirmed exhaustively
+//     as the only two consumers of that field, on both 8.9 and 8.10. Whatever password
+//     is set for the basic-auth admin user this package configures below lands in a
+//     ConfigMap, not a Secret, with no values.yaml-level way to route it elsewhere --
+//     the same category as CCD015, not something a different choice of value avoids.
+//     Reproduced with a real (space-free) password via the compiled `init` binary
+//     against the real chart before being added here, not assumed from reading the
+//     template alone.
 //
 // See cmd/camunda-chart-doctor/init.go for the self-check that enforces every other
 // rule stays clean.
@@ -192,7 +204,13 @@ func Build(a Answers, chartDefaults values.Values) (values.Values, []string, err
 
 	if a.IngressHost != "" {
 		values.SetPath(out, "global.ingress.enabled", true)
-		values.SetPath(out, "global.ingress.host", a.IngressHost)
+		// global.host, not global.ingress.host: the latter was removed outright in 8.10
+		// (templates/common/constraints.tpl's keyRemoved guard), and every template that
+		// reads it already checks global.host first and falls back to global.ingress.host
+		// on 8.9 -- so global.host is the version-stable field on both, confirmed by
+		// reading templates/common/_helpers.tpl, not assumed from the values.yaml
+		// description alone.
+		values.SetPath(out, "global.host", a.IngressHost)
 		values.SetPath(out, "global.ingress.tls.enabled", a.IngressTLS)
 	}
 
@@ -243,6 +261,15 @@ func Build(a Answers, chartDefaults values.Values) (values.Values, []string, err
 		"Run `camunda-chart-doctor plan-secrets` against your first real install before your "+
 			"next `helm upgrade`, to pin any Helm-auto-generated secret before it regenerates.",
 	)
+	if a.AuthMethod == "basic" {
+		notes = append(notes,
+			"Admin credential in a ConfigMap (CCD010): the chart renders this admin user's "+
+				"password verbatim into <release>-zeebe-configuration (and, if Connectors is "+
+				"enabled, <release>-connectors-configuration too) -- a ConfigMap, not a Secret, "+
+				"regardless of the value. This is a known chart limitation, not something this "+
+				"tool can fix via values.yaml; consider RBAC restricting ConfigMap read access "+
+				"in this namespace if that matters in your environment.")
+	}
 
 	return out, notes, nil
 }
@@ -259,6 +286,9 @@ func IsDocumentedException(f rules.Finding) bool {
 		return true
 	}
 	if f.RuleID == "CCD003" && strings.HasPrefix(f.Path, "identityKeycloak.") {
+		return true
+	}
+	if f.RuleID == "CCD010" && (strings.HasSuffix(f.Path, "-zeebe-configuration") || strings.HasSuffix(f.Path, "-connectors-configuration")) {
 		return true
 	}
 	return false
