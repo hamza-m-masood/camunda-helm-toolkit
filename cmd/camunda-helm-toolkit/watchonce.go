@@ -14,7 +14,7 @@ func runWatchOnce(args []string) int {
 	namespace := fs.String("namespace", "default", "kubernetes namespace")
 	fs.StringVar(namespace, "n", "default", "kubernetes namespace (shorthand)")
 	webhookURL := fs.String("webhook-url", "", "POST new findings here as JSON; if unset, just log them")
-	stateName := fs.String("state-configmap", "", "ConfigMap name holding prior-run state (default: <release>-chart-doctor-state)")
+	stateName := fs.String("state-configmap", "", "ConfigMap name holding prior-run state (default: <release>-helm-toolkit-state)")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -23,7 +23,7 @@ func runWatchOnce(args []string) int {
 		return 2
 	}
 	if *stateName == "" {
-		*stateName = *release + "-chart-doctor-state"
+		*stateName = *release + "-helm-toolkit-state"
 	}
 
 	current, err := runLiveFindings(*release, *namespace)

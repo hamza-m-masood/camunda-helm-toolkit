@@ -152,7 +152,7 @@ func writeMigratedValues(path string, v values.Values) error {
 	if err != nil {
 		return err
 	}
-	header := "# Migrated by camunda-chart-doctor upgrade. Review before use.\n" +
+	header := "# Migrated by camunda-helm-toolkit upgrade. Review before use.\n" +
 		"# Renamed keys have been rewritten. Anything the report lists as removed but\n" +
 		"# still present here needs a decision from you.\n"
 	return os.WriteFile(path, append([]byte(header), data...), 0o644)

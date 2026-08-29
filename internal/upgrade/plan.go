@@ -131,7 +131,7 @@ func (r Request) Plan(store *Store) (*Plan, error) {
 				Title:    fmt.Sprintf("No migration data for the %s hop", hop),
 				Detail: "This build cannot check values-key changes for that hop, so the findings " +
 					"below are incomplete for it.",
-				Remediation: "Check for a newer camunda-chart-doctor release.",
+				Remediation: "Check for a newer camunda-helm-toolkit release.",
 			})
 			continue
 		}

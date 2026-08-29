@@ -31,7 +31,7 @@
 //     against the real chart before being added here, not assumed from reading the
 //     template alone.
 //
-// See cmd/camunda-chart-doctor/init.go for the self-check that enforces every other
+// See cmd/camunda-helm-toolkit/init.go for the self-check that enforces every other
 // rule stays clean.
 package wizard
 
@@ -234,7 +234,7 @@ func Build(a Answers, chartDefaults values.Values) (values.Values, []string, err
 	// enabled -- so closing it component-by-component above is not enough; every
 	// mismatched block the chart ships by default (including ones this wizard never
 	// otherwise touches, like bundled subchart defaults) has to be fixed too, or the
-	// self-check in cmd/camunda-chart-doctor/init.go can never come back clean.
+	// self-check in cmd/camunda-helm-toolkit/init.go can never come back clean.
 	// Genuinely no values.yaml has an "am I enabled" flag readable from a resources
 	// block itself, so this is a blanket fix by design, not an oversight -- an entry
 	// for a component the operator left disabled is a no-op today and a safety net if
@@ -258,7 +258,7 @@ func Build(a Answers, chartDefaults values.Values) (values.Values, []string, err
 			"digests -- the correct digest is specific to the exact chart release you install, "+
 			"and hardcoding one here would go stale the moment that release changes. See the "+
 			"chart's own values-digest.yaml for the digests shipped with your chosen version.",
-		"Run `camunda-chart-doctor plan-secrets` against your first real install before your "+
+		"Run `camunda-helm-toolkit plan-secrets` against your first real install before your "+
 			"next `helm upgrade`, to pin any Helm-auto-generated secret before it regenerates.",
 	)
 	if a.AuthMethod == "basic" {

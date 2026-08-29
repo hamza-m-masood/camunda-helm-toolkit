@@ -31,7 +31,7 @@ func TestMain(m *testing.M) {
 	}
 	defer os.RemoveAll(tmpDir)
 
-	testBinary = filepath.Join(tmpDir, "camunda-chart-doctor")
+	testBinary = filepath.Join(tmpDir, "camunda-helm-toolkit")
 	build := exec.Command("go", "build", "-o", testBinary, ".")
 	build.Stdout = os.Stdout
 	build.Stderr = os.Stderr

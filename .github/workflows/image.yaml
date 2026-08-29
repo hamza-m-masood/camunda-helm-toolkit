@@ -22,7 +22,7 @@ jobs:
       - name: Build and push
         run: |
           tag="${GITHUB_REF_NAME}"
-          image="ghcr.io/${{ github.repository_owner }}/camunda-chart-doctor"
+          image="ghcr.io/${{ github.repository_owner }}/camunda-helm-toolkit"
           docker build -t "${image}:${tag}" -t "${image}:latest" .
           docker push "${image}:${tag}"
           docker push "${image}:latest"

@@ -46,7 +46,7 @@ jobs:
           path: .chart-repo
       - name: Regenerate and diff
         run: |
-          go run ./cmd/camunda-chart-doctor generate \
+          go run ./cmd/camunda-helm-toolkit generate \
             --chart-repo .chart-repo --lines 8.8,8.9,8.10
           if ! git diff --quiet -- internal/upgrade/data; then
             echo "::warning::Embedded migration data is behind camunda-platform-helm main."

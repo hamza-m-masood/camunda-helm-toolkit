@@ -116,7 +116,7 @@ func WriteSARIF(w io.Writer, findings []rules.Finding) error {
 		Version: "2.1.0",
 		Runs: []sarifRun{{
 			Tool: sarifTool{Driver: sarifDriver{
-				Name:           "camunda-chart-doctor",
+				Name:           "camunda-helm-toolkit",
 				InformationURI: "https://github.com/hamza-m-masood/camunda-chart-doctor",
 				Version:        ToolVersion,
 				Rules:          ruleDefs,

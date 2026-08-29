@@ -43,7 +43,7 @@ func TestWriteSARIF_StructuralShape(t *testing.T) {
 	run := runs[0].(map[string]interface{})
 
 	driver := run["tool"].(map[string]interface{})["driver"].(map[string]interface{})
-	if driver["name"] != "camunda-chart-doctor" {
+	if driver["name"] != "camunda-helm-toolkit" {
 		t.Errorf("driver.name = %v", driver["name"])
 	}
 	rulesArr := driver["rules"].([]interface{})
