@@ -10,7 +10,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -o /out/camunda-chart-doctor ./cmd/camunda-chart-doctor
+RUN CGO_ENABLED=0 go build -o /out/camunda-helm-toolkit ./cmd/camunda-helm-toolkit
 
 FROM alpine:3.20 AS tools
 RUN apk add --no-cache curl
@@ -31,6 +31,6 @@ FROM alpine:3.20
 RUN apk add --no-cache ca-certificates
 COPY --from=tools /tmp/kubectl /usr/local/bin/kubectl
 COPY --from=tools /tmp/helm-bin /usr/local/bin/helm
-COPY --from=build /out/camunda-chart-doctor /usr/local/bin/camunda-chart-doctor
+COPY --from=build /out/camunda-helm-toolkit /usr/local/bin/camunda-helm-toolkit
 USER 65532:65532
-ENTRYPOINT ["/usr/local/bin/camunda-chart-doctor"]
+ENTRYPOINT ["/usr/local/bin/camunda-helm-toolkit"]
