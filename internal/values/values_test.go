@@ -97,3 +97,30 @@ func TestToInt_HandlesQuotedNumericStrings(t *testing.T) {
 		t.Errorf("ToInt(\"3\") = %d, %v; want 3, nil", n, err)
 	}
 }
+
+func TestGetPath_ResolvesArrayIndexSegments(t *testing.T) {
+	v, err := values.ParseYAML([]byte(`
+orchestration:
+  security:
+    initialization:
+      users:
+        - username: demo
+          password: demo
+        - username: connectors
+          password: connector
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, ok := values.GetPath(v, "orchestration.security.initialization.users[1].username")
+	if !ok {
+		t.Fatal("expected users[1].username to resolve")
+	}
+	if got != "connectors" {
+		t.Errorf("expected \"connectors\", got %#v", got)
+	}
+
+	if _, ok := values.GetPath(v, "orchestration.security.initialization.users[5].username"); ok {
+		t.Error("expected an out-of-range index to fail to resolve, not panic or return something")
+	}
+}

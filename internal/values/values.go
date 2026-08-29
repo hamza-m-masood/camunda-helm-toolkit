@@ -7,6 +7,7 @@ package values
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -124,19 +125,39 @@ func FindBlocks(root Values, requiredKeys ...string) []Block {
 	return out
 }
 
+var pathIndexRe = regexp.MustCompile(`^(.*)\[(\d+)\]$`)
+
 // GetPath resolves a dotted path (e.g. "orchestration.podDisruptionBudget.enabled")
 // against the values tree. The second return value is false if any segment is missing.
+//
+// A segment may end in "[N]" (e.g. "users[0]") to index into a list at that point —
+// the same array-index notation FindBlocks already appends to a Path when it walks
+// through a list, so a path FindBlocks reports and a path GetPath accepts are always
+// the same syntax.
 func GetPath(root Values, path string) (interface{}, bool) {
 	parts := strings.Split(path, ".")
 	var cur interface{} = map[string]interface{}(root)
 	for _, p := range parts {
+		key := p
+		var index = -1
+		if m := pathIndexRe.FindStringSubmatch(p); m != nil {
+			key = m[1]
+			index, _ = strconv.Atoi(m[2])
+		}
 		m, ok := cur.(map[string]interface{})
 		if !ok {
 			return nil, false
 		}
-		cur, ok = m[p]
+		cur, ok = m[key]
 		if !ok {
 			return nil, false
+		}
+		if index >= 0 {
+			list, ok := cur.([]interface{})
+			if !ok || index >= len(list) {
+				return nil, false
+			}
+			cur = list[index]
 		}
 	}
 	return cur, true
