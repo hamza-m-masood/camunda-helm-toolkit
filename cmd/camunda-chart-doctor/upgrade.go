@@ -195,7 +195,9 @@ func writeUpgradeText(w io.Writer, p *upgrade.Plan, useColor bool, wroteValues s
 	}
 	fmt.Fprintln(w)
 
-	report.WriteText(w, p.Findings, useColor)
+	// The upgrade command has no suppression-file concept of its own (see
+	// internal/suppress) — nil/false here just means "nothing suppressed".
+	report.WriteText(w, p.Findings, nil, false, useColor)
 
 	if p.Approximate > 0 {
 		fmt.Fprintf(w, "%d finding(s) are approximate: the chart's own condition was too complex to\n"+
