@@ -108,6 +108,10 @@ a CI pipeline without failing the build on advisory-level findings.
 | CCD010 | High | A rendered ConfigMap embedding what looks like a literal (non-templated) password or client secret. |
 | CCD011 | High / Medium | `--live` only: no PodDisruptionBudget object actually exists for the orchestration component, or an existing one currently allows zero disruptions. |
 | CCD012 | High | `--live` only: a referenced Secret or key declared in values.yaml doesn't actually exist in the cluster (renamed, deleted, or never created). |
+| CCD013 | Medium | `prometheusServiceMonitor.enabled` left at its default `false` — zero scrape targets, so nothing else here is observable either. |
+| CCD014 | Medium | A bundled `identityPostgresql`/`webModelerPostgresql` subchart is enabled with its own `backup.enabled` left off (a logical-dump-only mechanism, not PITR, but better than nothing). |
+| CCD015 | Low | Informational, not a misconfiguration you made: the chart's own rendered StatefulSet has no `terminationGracePeriodSeconds` and/or writes JVM heap dumps onto the same volume as the Raft/RocksDB data. Framed around the `orchestration.env`/`javaOpts` workaround, since there's no values.yaml field for the grace period itself. |
+| CCD016 | Low | Default broker anti-affinity still matches only `app.kubernetes.io/component`, with no `app.kubernetes.io/instance` — a second release in the same namespace can't co-schedule, and a drain has nowhere else to place an evicted broker on a minimal node pool. |
 
 \* Severity reflects likely blast radius and how easy the misconfiguration is to make —
 not a guarantee about your specific environment.
@@ -152,10 +156,81 @@ everything it suggests is printed for you to run, labelled `safe`, `destructive`
 data migration that has to happen between two Helm operations, and no amount of
 values rewriting substitutes for it.
 
+## Suppressing a finding
+
+A `.chartdoctor-ignore.yaml` in the current directory (or passed via `--ignore-file`) is
+auto-loaded by `check`:
+
+```yaml
+suppress:
+  - ruleId: CCD002
+    path: identity.resources # optional; exact match or dot-prefix match
+    reason: "identity is intentionally run Burstable in this cluster — accepted 2026-08."
+```
+
+`reason` is required — a suppression file stays self-documenting. Suppressed findings are
+never silently dropped: the summary line always shows a count, and `--show-suppressed`
+lists them in full.
+
+## Output formats
+
+`--json` for machine-readable output, or `--format sarif` for GitHub code-scanning / PR
+annotations instead of plain CI log text. `--fail-on critical|high|medium|low` controls
+which severities cause a nonzero exit code (default `high`).
+
+## GitHub Action
+
+```yaml
+- uses: hamza-m-masood/camunda-chart-doctor@v0.1.0-alpha
+  with:
+    chart: ./camunda-platform
+    values: |
+      values.yaml
+      values-prod.yaml
+    fail-on: high
+```
+
+Builds the tool from source at the pinned ref (not a downloaded release asset, so it
+always matches exactly what that ref's source produces) and runs `check` with inputs
+mirroring the CLI flags (`release`, `namespace`, `live`, `format`, `ignore-file`).
+Outputs `findings-file` (path to the raw output) and `exit-code`.
+
+## Other commands
+
+Beyond `check`, `upgrade`, and `generate` (see above), a few more:
+
+**`plan-secrets --release <name> -n <namespace>`** — finds chart-managed Secrets not yet
+pinned via `existingSecret` and prints the exact fix: a command to copy the Secret's
+current value to a new, independently-named object the chart will never own or prune
+(pointing `existingSecret` at the *same* name it already uses does **not** work — the
+chart stops rendering that Secret once every field is pinned, and Helm then deletes it),
+plus the values overlay to apply.
+
+**`bundle --release <name> -n <namespace> -o <path.tar.gz>`** (`--dry-run` to preview) —
+a support-ticket-ready archive: live findings, a **redacted** `helm get values -a`
+(every password/secret/token/credential/`*Key` value replaced with `<redacted>`),
+describe/events/logs for the orchestration component, and version info — all listed in
+a `manifest.json` so you can see exactly what you're about to send.
+
+**`scaffold-monitoring --release <name> -n <namespace> --chart <path>`** — generates
+ServiceMonitor manifests using port names taken from the chart's own rendered Service
+objects (never hardcoded), plus a baseline PrometheusRule. Output only; review and
+`kubectl apply` yourself.
+
+**`size --throughput <cmds/sec> --avg-payload-kb <n> [--retention-days <n>]`** — a
+heuristic (not a certified benchmark) starting point for `clusterSize`/`partitionCount`/
+`pvcSize`/resources, with the arithmetic behind every number printed alongside it.
+
+**`scaffold-watcher --release <name> -n <namespace> --schedule "<cron>"`** — generates a
+CronJob + least-privilege RBAC that reruns `check --live` on a schedule and reports only
+*new* findings (via a state ConfigMap), optionally to `--webhook-url`. Needs the image
+built from this repo's `Dockerfile` (published to `ghcr.io/hamza-m-masood/camunda-chart-doctor`
+on tag push).
+
 ## Exit codes
 
 `0` clean (at or below the `--fail-on` threshold) · `1` worst finding is medium/low ·
-`2` worst finding is high · `3` worst finding is critical. Both commands use the same
+`2` worst finding is high · `3` worst finding is critical. All commands use the same
 scale.
 
 ## How this was built
