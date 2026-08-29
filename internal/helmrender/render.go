@@ -29,7 +29,7 @@ func ShowValues(chartPath string) ([]byte, error) {
 // Template renders the chart with the given value overlay files and returns the raw
 // multi-document YAML manifest output.
 func Template(chartPath string, valueFiles []string) ([]byte, error) {
-	args := []string{"template", "camunda-chart-doctor", chartPath}
+	args := []string{"template", "camunda-helm-toolkit", chartPath}
 	for _, f := range valueFiles {
 		args = append(args, "-f", f)
 	}

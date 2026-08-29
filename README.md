@@ -1,4 +1,4 @@
-# camunda-chart-doctor
+# camunda-helm-toolkit
 
 > **Alpha / experimental — unofficial, community-maintained.** This is not an official
 > Camunda product, has not been through Camunda's product or security review process,
@@ -37,7 +37,7 @@ Download a binary from the [Releases](../../releases) page for your platform, or
 from source:
 
 ```sh
-go install github.com/hamza-m-masood/camunda-chart-doctor/cmd/camunda-chart-doctor@latest
+go install github.com/hamza-m-masood/camunda-chart-doctor/cmd/camunda-helm-toolkit@latest
 ```
 
 Requires `helm` on `PATH` for chart-based checks and for `upgrade --release`, and
@@ -49,14 +49,14 @@ binary, so `upgrade` needs no chart checkout.
 Build a starter values.yaml, answering questions on the command line:
 
 ```sh
-camunda-chart-doctor init --chart ./camunda-platform
+camunda-helm-toolkit init --chart ./camunda-platform
 ```
 
 Or fully non-interactively, for CI or scripting — every question has a flag, and
 `--non-interactive` fails on any missing required one instead of prompting:
 
 ```sh
-camunda-chart-doctor init --chart ./camunda-platform --non-interactive \
+camunda-helm-toolkit init --chart ./camunda-platform --non-interactive \
   --release-name camunda --secondary-storage elasticsearch \
   --auth-method basic --admin-username admin --admin-password '<a real password>' \
   --enable connectors \
@@ -90,14 +90,14 @@ heuristic `size` uses — see that command's own section for what the numbers me
 them to `helm install`/`helm upgrade`:
 
 ```sh
-camunda-chart-doctor check --chart ./camunda-platform -f my-values.yaml
+camunda-helm-toolkit check --chart ./camunda-platform -f my-values.yaml
 ```
 
 **Post-install** — check an installed release using Helm's own recorded effective
 values:
 
 ```sh
-camunda-chart-doctor check --release my-camunda -n my-namespace
+camunda-helm-toolkit check --release my-camunda -n my-namespace
 ```
 
 **Post-install + live drift check** — additionally query the cluster directly for
@@ -105,21 +105,21 @@ things values.yaml can't show (was the PodDisruptionBudget actually created? doe
 referenced Secret still exist with the expected key?):
 
 ```sh
-camunda-chart-doctor check --release my-camunda -n my-namespace --live
+camunda-helm-toolkit check --release my-camunda -n my-namespace --live
 ```
 
 **Plan an upgrade** — point it at an installed release and say where you want to go. It
 detects which chart line you are on from the release itself:
 
 ```sh
-camunda-chart-doctor upgrade --release my-camunda -n my-namespace --to 8.10
+camunda-helm-toolkit upgrade --release my-camunda -n my-namespace --to 8.10
 ```
 
 Save the rewritten values alongside the report, and optionally drop the keys the target
 line removed:
 
 ```sh
-camunda-chart-doctor upgrade --release my-camunda -n my-namespace \
+camunda-helm-toolkit upgrade --release my-camunda -n my-namespace \
   --to 8.10 --write-values migrated-values.yaml --strip-removed
 ```
 
@@ -130,7 +130,7 @@ judgement call about intent, so `--strip-removed` is opt-in.
 record its own chart version, so `--from` is required:
 
 ```sh
-camunda-chart-doctor upgrade -f my-values.yaml --from 8.9 --to 8.10
+camunda-helm-toolkit upgrade -f my-values.yaml --from 8.9 --to 8.10
 ```
 
 Add `--json` for machine-readable output, `--fail-on critical|high|medium|low` to
@@ -181,7 +181,7 @@ The key data is **generated from the chart's own deprecation helpers**
 (`camundaPlatform.keyRemoved`, `keyRenamed`, `keyDeprecated` in
 `templates/**/constraints.tpl`) rather than maintained by hand, so this tool cannot
 disagree with the chart about what changed, and every finding cites the chart file and
-line it came from. Regenerate with `camunda-chart-doctor generate --chart-repo <path>`.
+line it came from. Regenerate with `camunda-helm-toolkit generate --chart-repo <path>`.
 
 Those helpers were introduced in the 8.8 chart. **Hops into 8.8, 8.9 and 8.10 are
 covered; hops into 8.7 and earlier are not** — those charts express deprecations as
@@ -226,7 +226,7 @@ which severities cause a nonzero exit code (default `high`).
 ## GitHub Action
 
 ```yaml
-- uses: hamza-m-masood/camunda-chart-doctor@v0.3.0-alpha
+- uses: hamza-m-masood/camunda-helm-toolkit@v0.3.0-alpha
   with:
     chart: ./camunda-platform
     values: |
@@ -269,7 +269,7 @@ heuristic (not a certified benchmark) starting point for `clusterSize`/`partitio
 **`scaffold-watcher --release <name> -n <namespace> --schedule "<cron>"`** — generates a
 CronJob + least-privilege RBAC that reruns `check --live` on a schedule and reports only
 *new* findings (via a state ConfigMap), optionally to `--webhook-url`. Needs the image
-built from this repo's `Dockerfile` (published to `ghcr.io/hamza-m-masood/camunda-chart-doctor`
+built from this repo's `Dockerfile` (published to `ghcr.io/hamza-m-masood/camunda-helm-toolkit`
 on tag push).
 
 ## Exit codes

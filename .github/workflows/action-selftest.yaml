@@ -83,6 +83,6 @@ jobs:
           import json
           d = json.load(open('${{ steps.run_sarif.outputs.findings-file }}'))
           assert d['version'] == '2.1.0'
-          assert d['runs'][0]['tool']['driver']['name'] == 'camunda-chart-doctor'
+          assert d['runs'][0]['tool']['driver']['name'] == 'camunda-helm-toolkit'
           assert len(d['runs'][0]['results']) > 0
           "

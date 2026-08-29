@@ -1,4 +1,4 @@
-name: 'Camunda Chart Doctor'
+name: 'Camunda Helm Toolkit'
 description: >-
   Pre-flight and live checks for Camunda 8 Self-Managed Helm installs (alpha,
   unofficial, community-maintained — see README.md before relying on this).
@@ -43,7 +43,7 @@ outputs:
     description: 'Path to a file containing the findings output in the requested format'
     value: ${{ steps.run.outputs.findings-file }}
   exit-code:
-    description: 'The exit code camunda-chart-doctor produced'
+    description: 'The exit code camunda-helm-toolkit produced'
     value: ${{ steps.run.outputs.exit-code }}
 
 runs:
@@ -54,11 +54,11 @@ runs:
       with:
         go-version-file: ${{ github.action_path }}/go.mod
 
-    - name: Build camunda-chart-doctor
+    - name: Build camunda-helm-toolkit
       shell: bash
       run: |
-        go build -o "${{ runner.temp }}/camunda-chart-doctor" \
-          "${{ github.action_path }}/cmd/camunda-chart-doctor"
+        go build -o "${{ runner.temp }}/camunda-helm-toolkit" \
+          "${{ github.action_path }}/cmd/camunda-helm-toolkit"
 
     - name: Run check
       id: run
@@ -80,8 +80,8 @@ runs:
         if [ -n "${{ inputs.ignore-file }}" ]; then args+=(--ignore-file "${{ inputs.ignore-file }}"); fi
         args+=(--no-color)
 
-        out="${{ runner.temp }}/camunda-chart-doctor-findings.out"
-        "${{ runner.temp }}/camunda-chart-doctor" "${args[@]}" | tee "$out"
+        out="${{ runner.temp }}/camunda-helm-toolkit-findings.out"
+        "${{ runner.temp }}/camunda-helm-toolkit" "${args[@]}" | tee "$out"
         code=${PIPESTATUS[0]}
         echo "findings-file=$out" >> "$GITHUB_OUTPUT"
         echo "exit-code=$code" >> "$GITHUB_OUTPUT"

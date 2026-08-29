@@ -69,11 +69,11 @@ func GeneratePrometheusRule(release, namespace string) string {
 	return fmt.Sprintf(`apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: %s-camunda-chart-doctor-baseline
+  name: %s-camunda-helm-toolkit-baseline
   namespace: %s
 spec:
   groups:
-    - name: camunda-chart-doctor-baseline
+    - name: camunda-helm-toolkit-baseline
       rules:
         - alert: ZeebeBrokerRestarting
           expr: %s

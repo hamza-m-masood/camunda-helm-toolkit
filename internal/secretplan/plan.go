@@ -185,7 +185,7 @@ func buildKnownRecommendation(s live.SecretSummary, m mapping, namespace string)
 		Note: "1) Run the create-command below to copy the current secret to an " +
 			"independent object the chart will never own or prune. 2) Apply the overlay " +
 			"below with the next helm upgrade (merge it with your existing values, don't " +
-			"replace them). 3) Confirm with `camunda-chart-doctor check --release ... " +
+			"replace them). 3) Confirm with `camunda-helm-toolkit check --release ... " +
 			"--live` that CCD003/CCD012 are clean.",
 	}
 }
