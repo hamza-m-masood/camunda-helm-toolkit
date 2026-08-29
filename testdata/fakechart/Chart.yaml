@@ -1,0 +1,7 @@
+apiVersion: v2
+name: fakechart
+description: >-
+  A minimal, self-contained chart used only to exercise camunda-chart-doctor's
+  --chart pipeline (helm show values / helm template) in tests and the GitHub
+  Action self-test, without depending on the real camunda-platform-helm repo.
+version: 0.1.0

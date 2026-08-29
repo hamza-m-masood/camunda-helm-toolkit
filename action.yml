@@ -1,0 +1,88 @@
+name: 'Camunda Chart Doctor'
+description: >-
+  Pre-flight and live checks for Camunda 8 Self-Managed Helm installs (alpha,
+  unofficial, community-maintained — see README.md before relying on this).
+author: 'hamza-m-masood'
+
+inputs:
+  chart:
+    description: 'Path to the camunda-platform Helm chart (pre-install mode)'
+    required: false
+    default: ''
+  values:
+    description: 'Newline-separated list of values overlay files, applied in order (pre-install mode)'
+    required: false
+    default: ''
+  release:
+    description: 'Installed Helm release name (post-install mode; uses "helm get values -a" instead of chart+values)'
+    required: false
+    default: ''
+  namespace:
+    description: 'Kubernetes namespace of the release'
+    required: false
+    default: 'default'
+  live:
+    description: 'Also run live cluster checks (requires release + a configured kubeconfig)'
+    required: false
+    default: 'false'
+  fail-on:
+    description: 'Minimum severity causing this step to fail: critical|high|medium|low'
+    required: false
+    default: 'high'
+  format:
+    description: 'Output format: text|json|sarif'
+    required: false
+    default: 'text'
+  ignore-file:
+    description: 'Path to a .chartdoctor-ignore.yaml suppression file (default: auto-detected from the repo root if present)'
+    required: false
+    default: ''
+
+outputs:
+  findings-file:
+    description: 'Path to a file containing the findings output in the requested format'
+    value: ${{ steps.run.outputs.findings-file }}
+  exit-code:
+    description: 'The exit code camunda-chart-doctor produced'
+    value: ${{ steps.run.outputs.exit-code }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      with:
+        go-version-file: ${{ github.action_path }}/go.mod
+
+    - name: Build camunda-chart-doctor
+      shell: bash
+      run: |
+        go build -o "${{ runner.temp }}/camunda-chart-doctor" \
+          "${{ github.action_path }}/cmd/camunda-chart-doctor"
+
+    - name: Run check
+      id: run
+      shell: bash
+      run: |
+        set +e
+        args=(check)
+        if [ -n "${{ inputs.chart }}" ]; then args+=(--chart "${{ inputs.chart }}"); fi
+        if [ -n "${{ inputs.values }}" ]; then
+          while IFS= read -r f; do
+            [ -n "$f" ] && args+=(-f "$f")
+          done <<< "${{ inputs.values }}"
+        fi
+        if [ -n "${{ inputs.release }}" ]; then args+=(--release "${{ inputs.release }}"); fi
+        args+=(-n "${{ inputs.namespace }}")
+        if [ "${{ inputs.live }}" = "true" ]; then args+=(--live); fi
+        args+=(--fail-on "${{ inputs.fail-on }}")
+        args+=(--format "${{ inputs.format }}")
+        if [ -n "${{ inputs.ignore-file }}" ]; then args+=(--ignore-file "${{ inputs.ignore-file }}"); fi
+        args+=(--no-color)
+
+        out="${{ runner.temp }}/camunda-chart-doctor-findings.out"
+        "${{ runner.temp }}/camunda-chart-doctor" "${args[@]}" | tee "$out"
+        code=${PIPESTATUS[0]}
+        echo "findings-file=$out" >> "$GITHUB_OUTPUT"
+        echo "exit-code=$code" >> "$GITHUB_OUTPUT"
+        exit "$code"

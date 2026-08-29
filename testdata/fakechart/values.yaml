@@ -1,0 +1,3 @@
+# Intentionally empty — this chart exists only so --chart has something to merge
+# testdata/values/bad.yaml / good.yaml on top of; those overlays carry all the
+# actual values-based-rule content.
