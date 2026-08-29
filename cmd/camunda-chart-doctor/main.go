@@ -36,6 +36,8 @@ func main() {
 		os.Exit(runUpgrade(os.Args[2:]))
 	case "generate":
 		os.Exit(runGenerate(os.Args[2:]))
+	case "plan-secrets":
+		os.Exit(runPlanSecrets(os.Args[2:]))
 	case "version", "--version", "-v":
 		fmt.Println("camunda-chart-doctor " + version)
 	case "help", "-h", "--help":
