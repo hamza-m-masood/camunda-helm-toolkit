@@ -1,4 +1,4 @@
-// Command camunda-chart-doctor is a pre-flight and live checker for Camunda 8
+// Command camunda-chart-doctor is a pre-flight, live, and upgrade checker for Camunda 8
 // Self-Managed Helm installs. It is an unofficial, community-maintained tool — see
 // README.md for what it does and does not guarantee.
 package main
@@ -28,6 +28,10 @@ func main() {
 	switch os.Args[1] {
 	case "check":
 		os.Exit(runCheck(os.Args[2:]))
+	case "upgrade":
+		os.Exit(runUpgrade(os.Args[2:]))
+	case "generate":
+		os.Exit(runGenerate(os.Args[2:]))
 	case "version", "--version", "-v":
 		fmt.Println("camunda-chart-doctor " + version)
 	case "help", "-h", "--help":
@@ -40,12 +44,15 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`camunda-chart-doctor — pre-flight and live checks for Camunda 8 Self-Managed Helm installs
+	fmt.Println(`camunda-chart-doctor — pre-flight, live, and upgrade checks for Camunda 8 Self-Managed Helm installs
 
 USAGE:
   camunda-chart-doctor check --chart <path> [-f values.yaml]...       Pre-install: chart + overlay(s)
   camunda-chart-doctor check --release <name> -n <namespace>          Post-install: an installed release
                               [--chart <path>] [--live]
+  camunda-chart-doctor upgrade --release <name> -n <namespace>        Plan an upgrade to a newer chart line
+                              [--to 8.10] [--write-values out.yaml]
+  camunda-chart-doctor upgrade -f values.yaml --from 8.9 [--to 8.10]  Plan from a values file, no cluster
   camunda-chart-doctor version
 
 FLAGS (check):
@@ -57,6 +64,20 @@ FLAGS (check):
   --json                   Emit findings as JSON instead of text
   --no-color               Disable ANSI color in text output
   --fail-on string         Minimum severity causing a nonzero exit: critical|high|medium|low (default "high")
+
+FLAGS (upgrade):
+  --release string         Installed Helm release name (reads the values you supplied, not chart defaults)
+  -n, --namespace string   Kubernetes namespace of the release (default "default")
+  -f, --values-file string Plan from a values file instead of a cluster (requires --from)
+  --from string            Current Camunda line, e.g. 8.9 (auto-detected from the release otherwise)
+  --to string              Target Camunda line, e.g. 8.10 (default: newest line this build knows)
+  --write-values string    Write the migrated values.yaml to this path
+  --strip-removed          Also delete removed keys from the migrated values (renames always applied)
+  --json                   Emit the full plan as JSON
+  --fail-on string         Minimum severity causing a nonzero exit (default "high")
+
+The upgrade command never writes to your cluster. Its runbook prints commands for you
+to run yourself, labelled safe / destructive / downtime.
 
 This is an ALPHA, community-maintained tool. It is not an official Camunda product and carries
 no support guarantee. It encodes a known set of recurring misconfigurations — passing every

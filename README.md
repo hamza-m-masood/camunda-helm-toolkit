@@ -5,17 +5,26 @@
 > and carries no support guarantee. It is built and validated by one engineer. Read the
 > [Disclaimer](#disclaimer) before pointing it at anything you care about.
 
-A pre-flight and live checker for [Camunda 8 Self-Managed](https://camunda.com) Helm
-installs. It statically scans a chart + values overlay (or an already-installed Helm
-release, optionally cross-checked against the live cluster) for a set of recurring
-Kubernetes misconfigurations that are individually easy to make, hard to notice, and
-expensive to hit in production: burstable memory QoS on a stateful broker, a disabled
-PodDisruptionBudget on a quorum-based cluster, a secret reference that silently no-ops,
-default credentials left in place, disabled log/index retention, and a few more. See
-[Checks](#checks) for the full list and the failure mode each one guards against.
+A pre-flight, live, and upgrade checker for [Camunda 8 Self-Managed](https://camunda.com)
+Helm installs. Two commands:
 
-Passing every check is **not** proof a deployment is production-ready — it only means
-this specific, known set of footguns isn't present.
+- **`check`** statically scans a chart + values overlay (or an already-installed Helm
+  release, optionally cross-checked against the live cluster) for recurring Kubernetes
+  misconfigurations that are individually easy to make, hard to notice, and expensive to
+  hit in production: burstable memory QoS on a stateful broker, a disabled
+  PodDisruptionBudget on a quorum-based cluster, a secret reference that silently no-ops,
+  default credentials left in place, disabled log/index retention, and more.
+- **`upgrade`** answers a different question: *what will break if I move this release to
+  a newer chart line?* It reads the values you actually supplied, reports every
+  values.yaml key the target line removed, renamed or deprecated, rewrites what it can
+  rewrite, and prints a runbook for the imperative steps no values file can express —
+  most notably the Keycloak/PostgreSQL data migration that 8.10 requires. It never writes
+  to your cluster.
+
+See [Checks](#checks) for the full list and the failure mode each one guards against.
+
+Passing every check is **not** proof a deployment is production-ready or that an upgrade
+will succeed — it only means this specific, known set of footguns isn't present.
 
 ## Install
 
@@ -26,8 +35,9 @@ from source:
 go install github.com/hamza-m-masood/camunda-chart-doctor/cmd/camunda-chart-doctor@latest
 ```
 
-Requires `helm` on `PATH` for chart-based checks, and `kubectl` or `oc` on `PATH` for
-`--live` checks.
+Requires `helm` on `PATH` for chart-based checks and for `upgrade --release`, and
+`kubectl` or `oc` on `PATH` for `--live` checks. The migration data is compiled into the
+binary, so `upgrade` needs no chart checkout.
 
 ## Usage
 
@@ -51,6 +61,31 @@ referenced Secret still exist with the expected key?):
 
 ```sh
 camunda-chart-doctor check --release my-camunda -n my-namespace --live
+```
+
+**Plan an upgrade** — point it at an installed release and say where you want to go. It
+detects which chart line you are on from the release itself:
+
+```sh
+camunda-chart-doctor upgrade --release my-camunda -n my-namespace --to 8.10
+```
+
+Save the rewritten values alongside the report, and optionally drop the keys the target
+line removed:
+
+```sh
+camunda-chart-doctor upgrade --release my-camunda -n my-namespace \
+  --to 8.10 --write-values migrated-values.yaml --strip-removed
+```
+
+Renames are always applied (the replacement key is known). Deleting a setting is a
+judgement call about intent, so `--strip-removed` is opt-in.
+
+**Plan without a cluster** — from a values file you already have. A values file does not
+record its own chart version, so `--from` is required:
+
+```sh
+camunda-chart-doctor upgrade -f my-values.yaml --from 8.9 --to 8.10
 ```
 
 Add `--json` for machine-readable output, `--fail-on critical|high|medium|low` to
@@ -77,16 +112,62 @@ a CI pipeline without failing the build on advisory-level findings.
 \* Severity reflects likely blast radius and how easy the misconfiguration is to make —
 not a guarantee about your specific environment.
 
+### Upgrade checks (`upgrade`)
+
+| ID | Severity | What it catches |
+|----|----------|------------------|
+| CCD101 | High | A values key the target line **removed**. The chart calls `fail()`, so `helm upgrade` renders nothing until the key is gone. |
+| CCD102 | High | A values key the target line **renamed**. Also a hard render failure, but mechanically fixable — the rewrite is applied for you, including subtree renames like `camundaHub.webModeler.*` → `camundaHub.*`. |
+| CCD103 | Low | A **deprecated** key. The upgrade still succeeds; the chart keeps warning, and names the release it is scheduled for removal in. |
+| CCD104 | Critical | Bundled Bitnami subcharts (Keycloak / PostgreSQL / Elasticsearch) are enabled and the target line removes them. Your Keycloak realm and the Identity and Web Modeler databases live inside those workloads — upgrading before moving that data deletes what holds it. |
+| CCD105 | High | The requested jump spans more than one minor. Camunda does not support skipping minors, so this is N separate upgrades, each of which must land healthy before the next. |
+| CCD106 | Medium | A component's `env` / `extraConfiguration` / `command` / `extraVolumeMounts` is set. The chart cannot validate these, so they are invisible to every other check — and an override that works around a limitation the target version fixes internally can conflict after upgrading. |
+| CCD107 | Medium | The target chart requires a newer Helm CLI major than the constraint allows (chart 15.x requires Helm v4). Fails at render time, before anything is applied. |
+| CCD108 | Low | The line you are leaving is end-of-life. |
+| CCD109 | Medium | No migration data is embedded for one of the hops, so findings are incomplete for it. See [Upgrade coverage](#upgrade-coverage). |
+
+### Upgrade coverage
+
+The key data is **generated from the chart's own deprecation helpers**
+(`camundaPlatform.keyRemoved`, `keyRenamed`, `keyDeprecated` in
+`templates/**/constraints.tpl`) rather than maintained by hand, so this tool cannot
+disagree with the chart about what changed, and every finding cites the chart file and
+line it came from. Regenerate with `camunda-chart-doctor generate --chart-repo <path>`.
+
+Those helpers were introduced in the 8.8 chart. **Hops into 8.8, 8.9 and 8.10 are
+covered; hops into 8.7 and earlier are not** — those charts express deprecations as
+ad-hoc warning strings with no machine-readable structure. Planning an upgrade that
+passes through an uncovered hop raises CCD109 rather than implying the hop is clean.
+
+Where the chart's condition for a key is too complex to model exactly (a compound
+`and`/`or`), the finding is reported on key presence alone and the report says how many
+findings are approximate. It errs toward showing you a key you may not need to change,
+rather than hiding one you do.
+
+### What the upgrade command does not do
+
+It does not upgrade anything. It reads `helm get values` and `helm get metadata`, and
+everything it suggests is printed for you to run, labelled `safe`, `destructive`, or
+`downtime`. A clean render is also not a safe upgrade: CCD104 in particular describes a
+data migration that has to happen between two Helm operations, and no amount of
+values rewriting substitutes for it.
+
 ## Exit codes
 
 `0` clean (at or below the `--fail-on` threshold) · `1` worst finding is medium/low ·
-`2` worst finding is high · `3` worst finding is critical.
+`2` worst finding is high · `3` worst finding is critical. Both commands use the same
+scale.
 
 ## How this was built
 
-Every check here traces back to a documented Kubernetes failure mode, verified against
+Every `check` rule traces back to a documented Kubernetes failure mode, verified against
 the actual Camunda Platform Helm chart templates and by rendering/deploying the chart —
-not inferred from documentation. None of it encodes anything specific to any customer,
+not inferred from documentation. The `upgrade` command's key data is generated from those
+same chart templates, and its runbook steps are transcribed from the chart repo's own CI
+upgrade hooks — so each one is a step the chart's test matrix actually runs, and carries
+a `source:` pointing at it. Verified end to end against a real 8.9 install on OpenShift:
+the unmigrated values fail the 8.10 render on exactly the keys reported, and the migrated
+values render clean. None of it encodes anything specific to any customer,
 deployment, or incident; the checks are general Kubernetes/Helm patterns (Burstable QoS,
 PodDisruptionBudget coverage, secret-reference validation) applied to this chart's
 specific value paths.

@@ -1,0 +1,4 @@
+apiVersion: v2
+name: camunda-platform
+version: 99.1.0
+appVersion: 9.1.x

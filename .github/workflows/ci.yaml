@@ -25,3 +25,34 @@ jobs:
       - run: go vet ./...
       - run: go test ./... -race -count=1
       - run: gofmt -l . | tee /tmp/fmt.out && test ! -s /tmp/fmt.out
+
+  # The upgrade migration data is generated from the chart's constraints.tpl helpers.
+  # Regenerating against the chart's main branch here means a new deprecation upstream
+  # shows up as a failing check with a diff, rather than as findings this tool silently
+  # stops reporting.
+  migration-data-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check out camunda-platform-helm
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: camunda/camunda-platform-helm
+          path: .chart-repo
+      - name: Regenerate and diff
+        run: |
+          go run ./cmd/camunda-chart-doctor generate \
+            --chart-repo .chart-repo --lines 8.8,8.9,8.10
+          if ! git diff --quiet -- internal/upgrade/data; then
+            echo "::warning::Embedded migration data is behind camunda-platform-helm main."
+            git diff --stat -- internal/upgrade/data
+            git diff -- internal/upgrade/data | head -200
+            exit 1
+          fi
+          echo "Migration data is up to date with the chart's main branch."
+

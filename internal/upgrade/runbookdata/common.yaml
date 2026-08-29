@@ -1,0 +1,44 @@
+# Steps that apply to every hop.
+hop: common
+steps:
+  - id: snapshot-values
+    title: Snapshot the values you actually supplied
+    kind: prerequisite
+    danger: safe
+    when: always
+    why: |
+      This is the only record of what you configured, as opposed to what the chart
+      defaulted. Take it before changing anything: if the upgrade has to be rolled
+      back, this file is what you roll back to.
+    commands:
+      - "helm get values {{RELEASE}} -n {{NAMESPACE}} -o yaml > {{RELEASE}}-values-backup.yaml"
+
+  - id: dry-run
+    title: Render the target chart against the migrated values before upgrading
+    kind: verify
+    danger: safe
+    when: always
+    why: |
+      Every removed or renamed key in this report is a hard render failure. A local
+      render surfaces all of them at once with no cluster changes, which is far cheaper
+      than finding them one failed upgrade at a time.
+    commands:
+      - "helm template {{RELEASE}} camunda/camunda-platform --version {{TARGET_CHART_VERSION}} -f {{MIGRATED_VALUES}} > /dev/null"
+
+  - id: immutable-field-contingency
+    title: If the upgrade fails on an immutable field
+    kind: contingency
+    danger: destructive
+    when: always
+    why: |
+      Some releases change a StatefulSet selector or volume claim template, which
+      Kubernetes will not patch in place. Do NOT pre-delete anything: the chart repo's
+      own minor-upgrade hook records that StatefulSet pre-deletion is not required for
+      minor upgrades, because Helm uses a strategic-merge patch rather than a replace.
+      Only if helm upgrade actually rejects an immutable field, delete that one
+      StatefulSet with --cascade=orphan, which leaves its pods and PVCs alive, then
+      re-run the upgrade.
+    commands:
+      - "# ONLY after an immutable-field error, and only for the StatefulSet it named:"
+      - "kubectl delete sts <name> -n {{NAMESPACE}} --cascade=orphan"
+    source: charts/camunda-platform-8.8/test/integration/scenarios/pre-setup-scripts/pre-upgrade-minor.sh

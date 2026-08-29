@@ -1,0 +1,52 @@
+# Imperative steps for upgrading into the 8.10 line (chart 15.x).
+hop: "8.10"
+steps:
+  - id: helm-cli-v4
+    title: Upgrade the Helm CLI to v4 or later
+    kind: prerequisite
+    danger: safe
+    when: always
+    why: |
+      Chart 15.x hard-fails at render time on any Helm CLI older than v4. It fails
+      before anything is applied, so the cost is a wasted attempt rather than a broken
+      cluster, but it is the cheapest thing to check first.
+    commands:
+      - helm version --short
+    docs: https://helm.sh/docs/topics/v4_migration/
+    source: charts/camunda-platform-8.10/templates/common/constraints.tpl
+
+  - id: bitnami-offload
+    title: Move Keycloak and PostgreSQL data off the bundled Bitnami subcharts
+    kind: manual
+    danger: downtime
+    when: bundled-bitnami
+    why: |
+      The 8.10 chart no longer ships the bundled Bitnami Keycloak and PostgreSQL
+      subcharts. If you are still running them, the data they hold -- your Keycloak
+      realm (users, clients, roles) and the Identity and Web Modeler databases -- has to
+      be moved onto companion services BEFORE the chart upgrade. Upgrade first and the
+      chart removes the workloads holding that data.
+
+      No values file can express this: it is a data migration that runs between two Helm
+      operations. Camunda publishes the scripts in camunda-deployment-references, and
+      the chart's own CI runs exactly these scripts on this hop across ten upgrade
+      scenarios, in external target mode with SKIP_HELM_UPGRADE=true so the data move
+      and the chart upgrade stay separate steps.
+    commands:
+      - "git clone --depth 1 --branch stable/8.9 https://github.com/camunda/camunda-deployment-references.git"
+      - "# follow generic/kubernetes/migration with KEYCLOAK_TARGET_MODE=external SKIP_HELM_UPGRADE=true"
+    docs: https://docs.camunda.io/docs/self-managed/deployment/helm/upgrade/
+    source: charts/camunda-platform-8.10/test/integration/scenarios/pre-setup-scripts/post-infra-bitnami-migration.sh
+
+  - id: verify-warnings
+    title: Read the release warnings ConfigMap after upgrading
+    kind: verify
+    danger: safe
+    when: always
+    why: |
+      The chart collects its non-fatal deprecation warnings into a ConfigMap named
+      "<release>-warnings", the same content that appears in NOTES.txt. It is the chart
+      reporting, from inside your own cluster, which deprecated keys you are still on.
+    commands:
+      - "kubectl get configmap {{RELEASE}}-warnings -n {{NAMESPACE}} -o jsonpath='{.data}'"
+    source: charts/camunda-platform-8.10/templates/common/configmap-warnings.yaml

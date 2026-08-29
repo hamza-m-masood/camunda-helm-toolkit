@@ -133,3 +133,43 @@ func CheckSecretKeyExists(namespace, secretName, key, contextPath string) []rule
 		Remediation: "Add the key to the Secret, or correct existingSecretKey.",
 	}}
 }
+
+// GetHelmUserValues returns ONLY the values the operator supplied, without the chart's
+// defaults merged in. The upgrade planner needs this rather than the "-a" view: a
+// deprecated key that is merely sitting at its chart default is not something the
+// operator configured, and reporting it would bury the real findings in noise.
+func GetHelmUserValues(namespace, release string) ([]byte, error) {
+	cmd := exec.Command("helm", "get", "values", "-n", namespace, release, "-o", "yaml")
+	var out, stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("helm get values failed: %w: %s", err, stderr.String())
+	}
+	return out.Bytes(), nil
+}
+
+// ReleaseMetadata is the subset of `helm get metadata` this tool uses.
+type ReleaseMetadata struct {
+	Chart      string `json:"chart"`
+	Version    string `json:"version"`
+	AppVersion string `json:"appVersion"`
+	Namespace  string `json:"namespace"`
+}
+
+// GetReleaseMetadata reports the chart version an installed release is running, so the
+// operator does not have to tell the tool where they are starting from.
+func GetReleaseMetadata(namespace, release string) (*ReleaseMetadata, error) {
+	cmd := exec.Command("helm", "get", "metadata", "-n", namespace, release, "-o", "json")
+	var out, stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("helm get metadata failed: %w: %s", err, stderr.String())
+	}
+	var md ReleaseMetadata
+	if err := json.Unmarshal(out.Bytes(), &md); err != nil {
+		return nil, fmt.Errorf("parsing helm get metadata output: %w", err)
+	}
+	return &md, nil
+}

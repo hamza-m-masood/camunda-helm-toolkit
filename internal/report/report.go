@@ -82,3 +82,12 @@ func WriteJSON(w io.Writer, findings []rules.Finding) error {
 	enc.SetIndent("", "  ")
 	return enc.Encode(findings)
 }
+
+// WriteJSONValue emits an arbitrary payload as indented JSON. The upgrade command
+// carries more than a findings array (hops, runbook, migrated values), so it needs a
+// writer that is not shaped around []rules.Finding.
+func WriteJSONValue(w io.Writer, v interface{}) error {
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	return enc.Encode(v)
+}
