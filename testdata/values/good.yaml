@@ -1,0 +1,39 @@
+# Every rule's corresponding fix applied — should produce zero findings.
+orchestration:
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 3000Mi
+    limits:
+      cpu: 2000m
+      memory: 3000Mi
+  retention:
+    enabled: true
+  history:
+    retention:
+      enabled: true
+  readinessProbe:
+    timeoutSeconds: 5
+  replicationFactor: "3"
+  clusterSize: "3"
+  security:
+    initialization:
+      users:
+        - username: admin
+          password: "a-real-generated-password"
+          name: Admin User
+          email: admin@example.com
+  image:
+    repository: camunda/zeebe
+    tag: "8.9.0"
+    digest: "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef01234567"
+
+global:
+  elasticsearch:
+    auth:
+      secret:
+        existingSecret: es-secret
+        existingSecretKey: password

@@ -1,0 +1,43 @@
+# Deliberately hits every rule this tool checks — mirrors the chart's real shipped
+# defaults for the fields in question, per the Blast Radius audit.
+orchestration:
+  podDisruptionBudget:
+    enabled: false
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 1500Mi
+    limits:
+      cpu: 2000m
+      memory: 3000Mi
+  retention:
+    enabled: false
+  history:
+    retention:
+      enabled: false
+  readinessProbe:
+    timeoutSeconds: 1
+  replicationFactor: "3"
+  clusterSize: "1"
+  security:
+    initialization:
+      users:
+        - username: demo
+          password: demo
+          name: Demo User
+          email: demo@demo.com
+        - username: connectors
+          password: connector
+          name: Connector User
+          email: connector@demo.com
+  image:
+    repository: camunda/zeebe
+    tag: "8.9.0"
+    digest: ""
+
+global:
+  elasticsearch:
+    auth:
+      secret:
+        existingSecret: es-secret
+        existingSecretKey: ""

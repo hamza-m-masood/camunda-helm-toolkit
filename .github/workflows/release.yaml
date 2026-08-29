@@ -1,0 +1,44 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - run: go test ./... -count=1
+      - name: Cross-compile
+        run: |
+          mkdir -p dist
+          version="${GITHUB_REF_NAME}"
+          for os in linux darwin windows; do
+            for arch in amd64 arm64; do
+              ext=""
+              if [ "$os" = "windows" ]; then ext=".exe"; fi
+              out="dist/camunda-chart-doctor_${version}_${os}_${arch}${ext}"
+              echo "building $out"
+              GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build \
+                -ldflags "-X main.version=${version}" \
+                -o "$out" ./cmd/camunda-chart-doctor
+            done
+          done
+          cd dist && sha256sum * > checksums.txt
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/* \
+            --generate-notes \
+            --prerelease \
+            --notes "**Alpha / experimental — unofficial, community-maintained.** Not an official Camunda product; no support guarantee. See README.md before using this against anything you care about."
