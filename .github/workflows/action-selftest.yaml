@@ -1,0 +1,88 @@
+name: action-selftest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: action-selftest-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  bad-fixture-fails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run action against the known-bad fixture (expect failure)
+        id: run
+        continue-on-error: true
+        uses: ./
+        with:
+          chart: testdata/fakechart
+          values: testdata/values/bad.yaml
+          fail-on: high
+      - name: Assert the action actually failed
+        run: |
+          if [ "${{ steps.run.outcome }}" = "success" ]; then
+            echo "::error::expected the action to fail against testdata/values/bad.yaml, but it succeeded"
+            exit 1
+          fi
+          echo "confirmed: action failed as expected (outcome=${{ steps.run.outcome }})"
+
+  good-fixture-passes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run action against the known-good fixture (expect success)
+        uses: ./
+        with:
+          chart: testdata/fakechart
+          values: testdata/values/good.yaml
+          fail-on: high
+
+  json-and-sarif-formats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run action with --format json (expect failure, findings-file valid JSON)
+        id: run_json
+        continue-on-error: true
+        uses: ./
+        with:
+          chart: testdata/fakechart
+          values: testdata/values/bad.yaml
+          format: json
+          fail-on: high
+      - name: Validate JSON output
+        run: |
+          test -s "${{ steps.run_json.outputs.findings-file }}"
+          python3 -c "import json,sys; d=json.load(open('${{ steps.run_json.outputs.findings-file }}')); assert 'findings' in d; assert len(d['findings']) > 0"
+          echo "exit-code output: ${{ steps.run_json.outputs.exit-code }}"
+          test "${{ steps.run_json.outputs.exit-code }}" != "0"
+
+      - name: Run action with --format sarif (expect failure, findings-file valid SARIF)
+        id: run_sarif
+        continue-on-error: true
+        uses: ./
+        with:
+          chart: testdata/fakechart
+          values: testdata/values/bad.yaml
+          format: sarif
+          fail-on: high
+      - name: Validate SARIF output
+        run: |
+          test -s "${{ steps.run_sarif.outputs.findings-file }}"
+          python3 -c "
+          import json
+          d = json.load(open('${{ steps.run_sarif.outputs.findings-file }}'))
+          assert d['version'] == '2.1.0'
+          assert d['runs'][0]['tool']['driver']['name'] == 'camunda-chart-doctor'
+          assert len(d['runs'][0]['results']) > 0
+          "
