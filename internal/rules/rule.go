@@ -68,3 +68,34 @@ func AllManifestChecks() []ManifestCheck {
 		CheckPlaintextSecretsInConfigMap,
 	}
 }
+
+// Meta is static metadata about a rule, independent of any specific Finding it may
+// or may not have produced in a given run — used to build a complete rules catalog
+// (e.g. a SARIF report's tool.driver.rules array must list every rule the tool CAN
+// report, not just the ones that fired this run).
+type Meta struct {
+	ID       string
+	Title    string
+	Severity Severity // the rule's worst-case severity, for rules whose actual
+	// severity varies by where it fires (e.g. CCD002 is Critical on the
+	// orchestration component, Medium elsewhere).
+}
+
+// AllRuleMetas returns static metadata for every rule this tool can produce a
+// Finding for, values-based and manifest-based alike.
+func AllRuleMetas() []Meta {
+	return []Meta{
+		{"CCD001", "orchestration.podDisruptionBudget is disabled", High},
+		{"CCD002", "Memory requests below limits (Burstable QoS)", Critical},
+		{"CCD003", "existingSecret is set without existingSecretKey", High},
+		{"CCD004", "Default shipped credential is still active", Medium},
+		{"CCD005", "Index/log retention (ILM) is disabled", Medium},
+		{"CCD006", "readinessProbe.timeoutSeconds is too low", Low},
+		{"CCD007", "replicationFactor exceeds clusterSize", High},
+		{"CCD008", "Image pinned by tag only, no digest", Low},
+		{"CCD009", "Rendered manifest references a frozen Bitnami legacy image", High},
+		{"CCD010", "Rendered ConfigMap embeds a plaintext credential", High},
+		{"CCD011", "PodDisruptionBudget object missing or ineffective (live)", High},
+		{"CCD012", "Referenced Secret or key missing live (drift)", High},
+	}
+}
