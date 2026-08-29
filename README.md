@@ -5,10 +5,14 @@
 > and carries no support guarantee. It is built and validated by one engineer. Read the
 > [Disclaimer](#disclaimer) before pointing it at anything you care about.
 
-A pre-flight, live, and upgrade checker for [Camunda 8 Self-Managed](https://camunda.com)
-Helm installs. Two core commands, plus [several more](#other-commands) that turn a
-finding into a fix instead of just a report:
+A pre-flight, live, upgrade, and bootstrap checker for
+[Camunda 8 Self-Managed](https://camunda.com) Helm installs. Three core commands, plus
+[several more](#other-commands) that turn a finding into a fix instead of just a report:
 
+- **`init`** builds a starter values.yaml from a handful of questions, and — this is the
+  actual point of it — refuses to hand you the result unless it already passes every
+  `check` rule this tool can close via values.yaml alone. Most values.yaml generators
+  stop at "does this parse"; this one stops at "does this pass the audit."
 - **`check`** statically scans a chart + values overlay (or an already-installed Helm
   release, optionally cross-checked against the live cluster) for recurring Kubernetes
   misconfigurations that are individually easy to make, hard to notice, and expensive to
@@ -39,6 +43,42 @@ go install github.com/hamza-m-masood/camunda-chart-doctor/cmd/camunda-chart-doct
 Requires `helm` on `PATH` for chart-based checks and for `upgrade --release`, and
 `kubectl` or `oc` on `PATH` for `--live` checks. The migration data is compiled into the
 binary, so `upgrade` needs no chart checkout.
+
+## Init
+
+Build a starter values.yaml, answering questions on the command line:
+
+```sh
+camunda-chart-doctor init --chart ./camunda-platform
+```
+
+Or fully non-interactively, for CI or scripting — every question has a flag, and
+`--non-interactive` fails on any missing required one instead of prompting:
+
+```sh
+camunda-chart-doctor init --chart ./camunda-platform --non-interactive \
+  --release-name camunda --secondary-storage elasticsearch \
+  --auth-method basic --admin-username admin --admin-password '<a real password>' \
+  --enable connectors \
+  --throughput 800 --avg-payload-kb 3 \
+  --write-values my-values.yaml
+```
+
+Before printing or writing anything, `init` runs the exact same rules `check` would run
+against the result — both the values-based rules and, since `--chart` is required, the
+manifest-based ones too, against a real `helm template` render — and refuses to produce
+output at all if anything comes back that it can't explain. Three findings are
+structurally impossible for it to close and are the only ones ever expected: digest
+pinning (CCD008 — the right digest is specific to the exact release you install), a
+chart-template limitation with no values.yaml field at all (CCD015), and one pre-existing
+8.9 chart-default defect unrelated to anything `init` controls (CCD003 on
+`identityKeycloak.*`). Anything else that fires is a bug in `init`, not something it will
+hand you — see [How this was built](#how-this-was-built) for how that guarantee is tested.
+
+`--enable` is repeatable (`identity`, `connectors`, `optimize`, `webModeler`); enabling
+`webModeler` also requires `--web-modeler-from-email` (the chart's own hard render
+requirement, not this tool's). Sizing (`--throughput`/`--avg-payload-kb`) calls the same
+heuristic `size` uses — see that command's own section for what the numbers mean.
 
 ## Usage
 

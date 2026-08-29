@@ -1,6 +1,6 @@
-// Command camunda-chart-doctor is a pre-flight, live, and upgrade checker for Camunda 8
-// Self-Managed Helm installs. It is an unofficial, community-maintained tool — see
-// README.md for what it does and does not guarantee.
+// Command camunda-chart-doctor is a pre-flight, live, upgrade, and bootstrap checker for
+// Camunda 8 Self-Managed Helm installs. It is an unofficial, community-maintained tool —
+// see README.md for what it does and does not guarantee.
 package main
 
 import (
@@ -62,7 +62,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`camunda-chart-doctor — pre-flight, live, and upgrade checks for Camunda 8 Self-Managed Helm installs
+	fmt.Println(`camunda-chart-doctor — pre-flight, live, upgrade, and bootstrap checks for Camunda 8 Self-Managed Helm installs
 
 USAGE:
   camunda-chart-doctor init --chart <path>                            Build a self-checking starter values.yaml
@@ -83,6 +83,24 @@ USAGE:
 
 Run any command with --help for its full flag list. See README.md for what each one does
 and how it was validated.
+
+FLAGS (init):
+  --chart string           Path to the chart to build a starter values.yaml for (required)
+  --non-interactive        Fail on any missing answer instead of prompting (for CI/scripting)
+  --write-values string    Write the generated values.yaml here instead of stdout
+  --release-name string    What you intend to "helm install <name>" as (default "camunda")
+  --enable string          Component to enable beyond orchestration (repeatable): identity, connectors, optimize, webModeler
+  --secondary-storage string  elasticsearch, opensearch, or rdbms (required)
+  --throughput float       Sustained commands/sec, for a sizing recommendation (optional)
+  --avg-payload-kb float   Average command payload size in KB (required if --throughput is set)
+  --retention-days int     How long exported records must stay queryable (optional)
+  --ingress-host string    Expose via ingress at this host (optional)
+  --ingress-tls            Enable TLS on the ingress
+  --auth-method string     basic or oidc (required)
+  --admin-username string  Initial admin username (required if --auth-method basic)
+  --admin-password string  Initial admin password (required if --auth-method basic)
+  --oidc-issuer-url string External OIDC issuer URL (required if --auth-method oidc)
+  --web-modeler-from-email string  Web Modeler notification sender address (required if --enable webModeler)
 
 FLAGS (check):
   --chart string          Path to the camunda-platform Helm chart (enables manifest-based checks)
