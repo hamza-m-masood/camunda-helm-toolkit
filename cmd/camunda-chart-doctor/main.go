@@ -40,6 +40,8 @@ func main() {
 		os.Exit(runPlanSecrets(os.Args[2:]))
 	case "bundle":
 		os.Exit(runBundle(os.Args[2:]))
+	case "scaffold-monitoring":
+		os.Exit(runScaffoldMonitoring(os.Args[2:]))
 	case "version", "--version", "-v":
 		fmt.Println("camunda-chart-doctor " + version)
 	case "help", "-h", "--help":
