@@ -67,13 +67,17 @@ camunda-chart-doctor init --chart ./camunda-platform --non-interactive \
 Before printing or writing anything, `init` runs the exact same rules `check` would run
 against the result — both the values-based rules and, since `--chart` is required, the
 manifest-based ones too, against a real `helm template` render — and refuses to produce
-output at all if anything comes back that it can't explain. Three findings are
+output at all if anything comes back that it can't explain. Four findings are
 structurally impossible for it to close and are the only ones ever expected: digest
 pinning (CCD008 — the right digest is specific to the exact release you install), a
-chart-template limitation with no values.yaml field at all (CCD015), and one pre-existing
+chart-template limitation with no values.yaml field at all (CCD015), one pre-existing
 8.9 chart-default defect unrelated to anything `init` controls (CCD003 on
-`identityKeycloak.*`). Anything else that fires is a bug in `init`, not something it will
-hand you — see [How this was built](#how-this-was-built) for how that guarantee is tested.
+`identityKeycloak.*`), and the admin credential this tool sets landing verbatim in a
+ConfigMap rather than a Secret regardless of its value (CCD010 on
+`<release>-zeebe-configuration` and, if Connectors is enabled,
+`<release>-connectors-configuration` too — the chart's own template, not a values.yaml
+choice). Anything else that fires is a bug in `init`, not something it will hand you —
+see [How this was built](#how-this-was-built) for how that guarantee is tested.
 
 `--enable` is repeatable (`identity`, `connectors`, `optimize`, `webModeler`); enabling
 `webModeler` also requires `--web-modeler-from-email` (the chart's own hard render
