@@ -69,7 +69,17 @@ USAGE:
   camunda-chart-doctor upgrade --release <name> -n <namespace>        Plan an upgrade to a newer chart line
                               [--to 8.10] [--write-values out.yaml]
   camunda-chart-doctor upgrade -f values.yaml --from 8.9 [--to 8.10]  Plan from a values file, no cluster
+  camunda-chart-doctor generate --chart-repo <path>                   Regenerate embedded upgrade migration data
+  camunda-chart-doctor plan-secrets --release <name> -n <namespace>   Pin chart-managed secrets before an upgrade
+  camunda-chart-doctor bundle --release <name> -n <namespace> -o f.tgz Collect a redacted support bundle
+  camunda-chart-doctor scaffold-monitoring --release <name> --chart <path> Generate ServiceMonitor + PrometheusRule
+  camunda-chart-doctor size --throughput <cmds/sec> --avg-payload-kb <n> Heuristic clusterSize/pvcSize starting point
+  camunda-chart-doctor scaffold-watcher --release <name> --schedule "<cron>" Generate a continuous drift-check CronJob
+  camunda-chart-doctor watch-once --release <name> -n <namespace>     Run one drift check (used by the CronJob)
   camunda-chart-doctor version
+
+Run any command with --help for its full flag list. See README.md for what each one does
+and how it was validated.
 
 FLAGS (check):
   --chart string          Path to the camunda-platform Helm chart (enables manifest-based checks)

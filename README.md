@@ -6,7 +6,8 @@
 > [Disclaimer](#disclaimer) before pointing it at anything you care about.
 
 A pre-flight, live, and upgrade checker for [Camunda 8 Self-Managed](https://camunda.com)
-Helm installs. Two commands:
+Helm installs. Two core commands, plus [several more](#other-commands) that turn a
+finding into a fix instead of just a report:
 
 - **`check`** statically scans a chart + values overlay (or an already-installed Helm
   release, optionally cross-checked against the live cluster) for recurring Kubernetes
@@ -181,7 +182,7 @@ which severities cause a nonzero exit code (default `high`).
 ## GitHub Action
 
 ```yaml
-- uses: hamza-m-masood/camunda-chart-doctor@v0.1.0-alpha
+- uses: hamza-m-masood/camunda-chart-doctor@v0.3.0-alpha
   with:
     chart: ./camunda-platform
     values: |
