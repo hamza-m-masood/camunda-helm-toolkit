@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/report"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/report"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // A hand-rolled structural check, not a full SARIF 2.1.0 schema validation (that

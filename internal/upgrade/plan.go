@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // Upgrade findings use the CCD1xx range to keep them distinct from the CCD0xx

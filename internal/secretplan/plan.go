@@ -10,8 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/live"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/live"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // mapping describes one chart-generated Secret this tool has verified against the

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/suppress"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/suppress"
 )
 
 func TestLoad_RejectsMissingRuleIDOrReason(t *testing.T) {

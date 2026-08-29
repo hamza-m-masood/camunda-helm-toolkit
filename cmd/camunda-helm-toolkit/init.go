@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/helmrender"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/wizard"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/helmrender"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/wizard"
 	"gopkg.in/yaml.v3"
 )
 

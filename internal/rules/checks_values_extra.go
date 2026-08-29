@@ -3,7 +3,7 @@ package rules
 import (
 	"fmt"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // CheckServiceMonitorDisabled: prometheusServiceMonitor.enabled defaults to false.

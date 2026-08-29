@@ -3,7 +3,7 @@ package values_test
 import (
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 func TestDeepMerge_MapsMergeArraysReplace(t *testing.T) {

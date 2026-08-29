@@ -3,7 +3,7 @@
 // caught before a customer hits them in production instead of after.
 package rules
 
-import "github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+import "github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 
 // Severity ranks how bad it is if this finding is real and left unaddressed.
 type Severity string

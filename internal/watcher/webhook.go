@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // PostWebhook sends new findings as a JSON POST body. Kept deliberately generic

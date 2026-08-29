@@ -3,8 +3,8 @@ package monitorgen_test
 import (
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/monitorgen"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/monitorgen"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 func TestDiscoverServices_ExtractsNamedPortsOnly(t *testing.T) {

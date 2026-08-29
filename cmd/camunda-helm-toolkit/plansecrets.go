@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/live"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/secretplan"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/live"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/secretplan"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 func runPlanSecrets(args []string) int {

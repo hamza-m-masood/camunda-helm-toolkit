@@ -11,7 +11,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // Entry is one suppression rule: match on RuleID (required) and, optionally, an

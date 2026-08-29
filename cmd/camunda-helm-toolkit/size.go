@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/capacityplan"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/capacityplan"
 )
 
 func runSize(args []string) int {

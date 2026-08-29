@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/upgrade"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/upgrade"
 	"gopkg.in/yaml.v3"
 )
 

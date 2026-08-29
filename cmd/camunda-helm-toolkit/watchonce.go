@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/watcher"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/watcher"
 )
 
 func runWatchOnce(args []string) int {

@@ -37,7 +37,7 @@ Download a binary from the [Releases](../../releases) page for your platform, or
 from source:
 
 ```sh
-go install github.com/hamza-m-masood/camunda-chart-doctor/cmd/camunda-helm-toolkit@latest
+go install github.com/hamza-m-masood/camunda-helm-toolkit/cmd/camunda-helm-toolkit@latest
 ```
 
 Requires `helm` on `PATH` for chart-based checks and for `upgrade --release`, and
@@ -226,7 +226,7 @@ which severities cause a nonzero exit code (default `high`).
 ## GitHub Action
 
 ```yaml
-- uses: hamza-m-masood/camunda-helm-toolkit@v0.3.0-alpha
+- uses: hamza-m-masood/camunda-helm-toolkit@v0.5.0-alpha
   with:
     chart: ./camunda-platform
     values: |

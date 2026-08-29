@@ -3,9 +3,9 @@ package capacityplan_test
 import (
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/capacityplan"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/capacityplan"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // This is the self-check the feature was scoped to require: run this package's own

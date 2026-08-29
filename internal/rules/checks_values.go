@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // CheckPDBDisabled: orchestration.podDisruptionBudget.enabled defaults to false. On the

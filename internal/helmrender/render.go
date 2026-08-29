@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // ShowValues returns the chart's own default values.yaml content.

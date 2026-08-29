@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // ToolVersion is set by main at startup so SARIF output identifies the exact build
@@ -117,7 +117,7 @@ func WriteSARIF(w io.Writer, findings []rules.Finding) error {
 		Runs: []sarifRun{{
 			Tool: sarifTool{Driver: sarifDriver{
 				Name:           "camunda-helm-toolkit",
-				InformationURI: "https://github.com/hamza-m-masood/camunda-chart-doctor",
+				InformationURI: "https://github.com/hamza-m-masood/camunda-helm-toolkit",
 				Version:        ToolVersion,
 				Rules:          ruleDefs,
 			}},

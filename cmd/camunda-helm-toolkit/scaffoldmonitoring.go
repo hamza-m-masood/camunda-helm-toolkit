@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/helmrender"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/monitorgen"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/helmrender"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/monitorgen"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 func runScaffoldMonitoring(args []string) int {

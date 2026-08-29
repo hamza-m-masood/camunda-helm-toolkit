@@ -8,7 +8,7 @@ import (
 	"io"
 	"sort"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // Sort orders findings most-severe first, stably.

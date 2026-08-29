@@ -26,7 +26,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // Tag is which chart doc-comment annotated a field.

@@ -9,12 +9,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/helmrender"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/live"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/report"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/suppress"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/helmrender"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/live"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/report"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/suppress"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 	"gopkg.in/yaml.v3"
 )
 

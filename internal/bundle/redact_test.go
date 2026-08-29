@@ -3,7 +3,7 @@ package bundle_test
 import (
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/bundle"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/bundle"
 )
 
 func TestRedactValues_RedactsCredentialShapedLeaves(t *testing.T) {

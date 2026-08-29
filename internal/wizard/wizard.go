@@ -39,9 +39,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/capacityplan"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/values"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/capacityplan"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/values"
 )
 
 // Answers is the fixed question set `init` asks.

@@ -3,7 +3,7 @@ package rules_test
 import (
 	"testing"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 func TestCheckOrchestrationGracePeriodAndHeapDump(t *testing.T) {

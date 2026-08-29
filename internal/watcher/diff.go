@@ -1,6 +1,6 @@
 package watcher
 
-import "github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+import "github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 
 // Diff returns the subset of current findings whose Key was not present in the
 // previous run's state — "new" here means "not already known", not "just started

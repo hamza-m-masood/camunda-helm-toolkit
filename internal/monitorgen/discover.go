@@ -8,7 +8,7 @@ package monitorgen
 import (
 	"gopkg.in/yaml.v3"
 
-	"github.com/hamza-m-masood/camunda-chart-doctor/internal/rules"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 )
 
 // ServiceInfo is what this package needs from one rendered Service object.

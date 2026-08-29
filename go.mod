@@ -1,4 +1,4 @@
-module github.com/hamza-m-masood/camunda-chart-doctor
+module github.com/hamza-m-masood/camunda-helm-toolkit
 
 go 1.27.0
 
