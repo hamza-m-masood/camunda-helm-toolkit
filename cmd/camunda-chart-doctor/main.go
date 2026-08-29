@@ -42,6 +42,8 @@ func main() {
 		os.Exit(runBundle(os.Args[2:]))
 	case "scaffold-monitoring":
 		os.Exit(runScaffoldMonitoring(os.Args[2:]))
+	case "size":
+		os.Exit(runSize(os.Args[2:]))
 	case "version", "--version", "-v":
 		fmt.Println("camunda-chart-doctor " + version)
 	case "help", "-h", "--help":
