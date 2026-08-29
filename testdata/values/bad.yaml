@@ -35,9 +35,30 @@ orchestration:
     tag: "8.9.0"
     digest: ""
 
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values: [zeebe-broker]
+          topologyKey: kubernetes.io/hostname
+
 global:
   elasticsearch:
     auth:
       secret:
         existingSecret: es-secret
         existingSecretKey: ""
+
+prometheusServiceMonitor:
+  enabled: false
+
+identityPostgresql:
+  enabled: true
+  backup:
+    enabled: false
+
+webModelerPostgresql:
+  enabled: true

@@ -31,9 +31,31 @@ orchestration:
     tag: "8.9.0"
     digest: "sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef01234567"
 
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/component
+                operator: In
+                values: [zeebe-broker]
+              - key: app.kubernetes.io/instance
+                operator: In
+                values: [my-release]
+          topologyKey: kubernetes.io/hostname
+
 global:
   elasticsearch:
     auth:
       secret:
         existingSecret: es-secret
         existingSecretKey: password
+
+prometheusServiceMonitor:
+  enabled: true
+
+identityPostgresql:
+  enabled: false
+
+webModelerPostgresql:
+  enabled: false

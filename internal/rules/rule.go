@@ -58,6 +58,9 @@ func AllValuesChecks() []ValuesCheck {
 		CheckReadinessTimeoutLow,
 		CheckReplicationFactor,
 		CheckImageDigestMissing,
+		CheckServiceMonitorDisabled,
+		CheckBundledPostgresBackupDisabled,
+		CheckAntiAffinityNotReleaseScoped,
 	}
 }
 
@@ -66,6 +69,7 @@ func AllManifestChecks() []ManifestCheck {
 	return []ManifestCheck{
 		CheckLegacyBitnamiImages,
 		CheckPlaintextSecretsInConfigMap,
+		CheckOrchestrationGracePeriodAndHeapDump,
 	}
 }
 
@@ -97,5 +101,9 @@ func AllRuleMetas() []Meta {
 		{"CCD010", "Rendered ConfigMap embeds a plaintext credential", High},
 		{"CCD011", "PodDisruptionBudget object missing or ineffective (live)", High},
 		{"CCD012", "Referenced Secret or key missing live (drift)", High},
+		{"CCD013", "prometheusServiceMonitor.enabled is false", Medium},
+		{"CCD014", "Bundled PostgreSQL enabled with backup disabled", Medium},
+		{"CCD015", "Known chart limitation: grace period / heap dump path", Low},
+		{"CCD016", "Default anti-affinity is not release-scoped", Low},
 	}
 }
