@@ -28,6 +28,7 @@ func main() {
 		printUsage()
 		os.Exit(2)
 	}
+	report.ToolVersion = version
 	switch os.Args[1] {
 	case "check":
 		os.Exit(runCheck(os.Args[2:]))
@@ -64,7 +65,8 @@ FLAGS (check):
   --release string         Installed Helm release name (uses "helm get values -a" instead of --chart+-f)
   -n, --namespace string   Kubernetes namespace of the release (default "default")
   --live                   Also query the live cluster (kubectl/oc) for drift values alone can't show
-  --json                   Emit findings as JSON instead of text
+  --json                   Emit findings as JSON instead of text (shorthand for --format json)
+  --format string          Output format: text|json|sarif (default "text"; --json overrides to "json")
   --no-color               Disable ANSI color in text output
   --fail-on string         Minimum severity causing a nonzero exit: critical|high|medium|low (default "high")
   --ignore-file string     Suppression file (default: auto-load .chartdoctor-ignore.yaml from cwd if present)
@@ -104,7 +106,8 @@ func runCheck(args []string) int {
 	namespace := fs.String("namespace", "default", "kubernetes namespace")
 	fs.StringVar(namespace, "n", "default", "kubernetes namespace (shorthand)")
 	liveFlag := fs.Bool("live", false, "also run live cluster checks")
-	jsonOut := fs.Bool("json", false, "JSON output")
+	jsonOut := fs.Bool("json", false, "JSON output (shorthand for --format json)")
+	format := fs.String("format", "text", "output format: text|json|sarif")
 	noColor := fs.Bool("no-color", false, "disable color")
 	failOn := fs.String("fail-on", "high", "minimum severity for nonzero exit")
 	ignoreFile := fs.String("ignore-file", "", "suppression file (default: auto-load "+defaultIgnoreFile+" from cwd)")
@@ -156,13 +159,30 @@ func runCheck(args []string) int {
 		return 2
 	}
 
+	outFormat := strings.ToLower(strings.TrimSpace(*format))
 	if *jsonOut {
+		outFormat = "json"
+	}
+	switch outFormat {
+	case "sarif":
+		// SARIF results are meant to be exactly what's actionable; suppressed
+		// findings are intentionally left out of the results array (see
+		// report.WriteSARIF's doc comment) rather than force-fit into a SARIF
+		// suppression object this alpha tool doesn't try to model correctly.
+		if err := report.WriteSARIF(os.Stdout, kept); err != nil {
+			fmt.Fprintln(os.Stderr, "error:", err)
+			return 2
+		}
+	case "json":
 		if err := report.WriteJSON(os.Stdout, kept, suppressed, *showSuppressed); err != nil {
 			fmt.Fprintln(os.Stderr, "error:", err)
 			return 2
 		}
-	} else {
+	case "text", "":
 		report.WriteText(os.Stdout, kept, suppressed, *showSuppressed, !*noColor)
+	default:
+		fmt.Fprintf(os.Stderr, "error: unknown --format %q (want text|json|sarif)\n", *format)
+		return 2
 	}
 
 	return exitCode(kept, *failOn)
