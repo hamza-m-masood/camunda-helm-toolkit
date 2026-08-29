@@ -44,6 +44,10 @@ func main() {
 		os.Exit(runScaffoldMonitoring(os.Args[2:]))
 	case "size":
 		os.Exit(runSize(os.Args[2:]))
+	case "watch-once":
+		os.Exit(runWatchOnce(os.Args[2:]))
+	case "scaffold-watcher":
+		os.Exit(runScaffoldWatcher(os.Args[2:]))
 	case "version", "--version", "-v":
 		fmt.Println("camunda-chart-doctor " + version)
 	case "help", "-h", "--help":
