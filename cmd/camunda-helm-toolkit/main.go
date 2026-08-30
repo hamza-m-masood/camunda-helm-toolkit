@@ -9,8 +9,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/customrules"
 	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/helmrender"
 	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/live"
+	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/policyeval"
 	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/report"
 	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/rules"
 	"github.com/hamza-m-masood/camunda-helm-toolkit/internal/suppress"
@@ -155,7 +157,19 @@ func runCheck(args []string) int {
 	failOn := fs.String("fail-on", "high", "minimum severity for nonzero exit")
 	ignoreFile := fs.String("ignore-file", "", "suppression file (default: auto-load "+defaultIgnoreFile+" from cwd)")
 	showSuppressed := fs.Bool("show-suppressed", false, "also print/emit suppressed findings")
+	var rulesFrom multiFlag
+	fs.Var(&rulesFrom, "rules-from", "custom rules file, local path or http(s):// URL (repeatable)")
+	policyDir := fs.String("policy-dir", "", "directory of Conftest/Rego policies to evaluate against the rendered manifests (requires --chart and conftest on PATH)")
 	if err := fs.Parse(args); err != nil {
+		return 2
+	}
+
+	// A flag-combination error like this one depends only on the flags themselves,
+	// not on anything fetched from a chart or cluster — check it before doing any of
+	// that work, both so the failure is instant and so a --release that requires a
+	// real cluster to resolve doesn't have to succeed first just to reach this check.
+	if *policyDir != "" && *chart == "" {
+		fmt.Fprintln(os.Stderr, "error: --policy-dir requires --chart (Conftest evaluates the rendered manifests, which need a chart to render)")
 		return 2
 	}
 
@@ -170,6 +184,15 @@ func runCheck(args []string) int {
 		findings = append(findings, check(effective)...)
 	}
 
+	for _, src := range rulesFrom {
+		rf, err := customrules.LoadFrom(src)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "error: loading --rules-from", src, ":", err)
+			return 2
+		}
+		findings = append(findings, rf.Evaluate(effective)...)
+	}
+
 	if *chart != "" {
 		// A real release name matters here too if it's known — a future manifest check
 		// could reasonably key off labels, so don't hand it a placeholder just because
@@ -178,11 +201,29 @@ func runCheck(args []string) int {
 		if renderRelease == "" {
 			renderRelease = noReleaseNamePlaceholder
 		}
-		if docs, err := renderManifests(*chart, effective, renderRelease); err != nil {
+		docs, err := renderManifests(*chart, effective, renderRelease)
+		if err != nil {
+			if *policyDir != "" {
+				// Built-in manifest checks degrade gracefully on a render failure
+				// (a soft warning further down covers that), but --policy-dir was
+				// explicitly requested — silently skipping it here would be the
+				// same "looks configured, isn't" gap the conftest-on-PATH check
+				// above exists to prevent, just triggered a different way.
+				fmt.Fprintln(os.Stderr, "error: --policy-dir requires the chart to render, and it didn't:", err)
+				return 2
+			}
 			fmt.Fprintln(os.Stderr, "warning: skipping manifest checks:", err)
 		} else {
 			for _, check := range rules.AllManifestChecks() {
 				findings = append(findings, check(docs)...)
+			}
+			if *policyDir != "" {
+				pf, err := policyeval.Run(*policyDir, docs)
+				if err != nil {
+					fmt.Fprintln(os.Stderr, "error: --policy-dir:", err)
+					return 2
+				}
+				findings = append(findings, pf...)
 			}
 		}
 	}
