@@ -6,7 +6,9 @@
 > [Disclaimer](#disclaimer) before pointing it at anything you care about.
 
 A pre-flight, live, upgrade, and bootstrap checker for
-[Camunda 8 Self-Managed](https://camunda.com) Helm installs. Three core commands, plus
+[Camunda 8 Self-Managed](https://camunda.com) Helm installs. New here? See
+[Getting started](GETTING_STARTED.md) for the whole toolkit walked through in the order
+you'd actually use it. Three core commands, plus
 [several more](#other-commands) that turn a finding into a fix instead of just a report:
 
 - **`init`** builds a starter values.yaml from a handful of questions, and — this is the
