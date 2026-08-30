@@ -27,9 +27,14 @@ func ShowValues(chartPath string) ([]byte, error) {
 }
 
 // Template renders the chart with the given value overlay files and returns the raw
-// multi-document YAML manifest output.
-func Template(chartPath string, valueFiles []string) ([]byte, error) {
-	args := []string{"template", "camunda-helm-toolkit", chartPath}
+// multi-document YAML manifest output. releaseName is passed to `helm template` as the
+// release name — callers that generate release-scoped resources (e.g. a ServiceMonitor
+// selector keyed on app.kubernetes.io/instance) MUST pass the real release name here, or
+// every such label on the rendered output will carry whatever placeholder was used
+// instead of the name the operator actually installed as, matching against nothing on
+// a live cluster.
+func Template(chartPath string, valueFiles []string, releaseName string) ([]byte, error) {
+	args := []string{"template", releaseName, chartPath}
 	for _, f := range valueFiles {
 		args = append(args, "-f", f)
 	}
