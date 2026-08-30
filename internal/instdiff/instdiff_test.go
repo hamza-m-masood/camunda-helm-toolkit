@@ -124,15 +124,63 @@ orchestration:
 	}
 }
 
-func TestCompare_ArraysAreOpaqueValuesNotElementDiffed(t *testing.T) {
-	// Helm's own semantics: an overlay replaces an array wholesale, it never merges
-	// element-by-element -- a diff at the array level (not "index 2 differs") is the
-	// operationally meaningful unit here.
+func TestCompare_DifferentLengthArraysFallBackToWholeArrayChanged(t *testing.T) {
+	// A length mismatch has no sensible positional alignment without a real
+	// list-matching algorithm -- this is the one case that still reports the whole
+	// array as changed, same as every array used to, unconditionally, before this
+	// project's own adversarial audit found that blanket rule too coarse for the
+	// same-length case (see TestCompare_SameLengthArraysDiffPositionally below).
 	a := parse(t, "list:\n  - a\n  - b\n")
 	b := parse(t, "list:\n  - a\n  - b\n  - c\n")
 	changes := instdiff.Compare(a, b)
 	if len(changes) != 1 || changes[0].Path != "list" || changes[0].Kind != instdiff.Changed {
 		t.Fatalf("expected exactly 1 Changed at path 'list', got %+v", changes)
+	}
+}
+
+// An adversarial audit found that a single differing scalar three levels deep inside
+// a list was reported as "the entire array changed," dumping both full lists instead
+// of pinpointing the actual leaf -- directly undercutting the "structural diff,
+// precisely pinpoints" value this command exists for. This proves the fix: two
+// same-length lists diff positionally, down through nested maps, to the exact index
+// and leaf that actually differs.
+func TestCompare_SameLengthArraysDiffPositionally(t *testing.T) {
+	a := parse(t, "list:\n  - deep: {value: same1}\n  - deep: {value: same2}\n")
+	b := parse(t, "list:\n  - deep: {value: same1}\n  - deep: {value: DIFFERENT}\n")
+	changes := instdiff.Compare(a, b)
+	if len(changes) != 1 {
+		t.Fatalf("expected exactly 1 change, got %d: %+v", len(changes), changes)
+	}
+	c := changes[0]
+	if c.Path != "list.[1].deep.value" {
+		t.Errorf("expected the change to pinpoint list.[1].deep.value, got %q (this is the bug: reporting the whole array instead of the leaf)", c.Path)
+	}
+	if c.Kind != instdiff.Changed || c.A != "same2" || c.B != "DIFFERENT" {
+		t.Errorf("expected Changed same2 -> DIFFERENT, got %+v", c)
+	}
+}
+
+// A second finding from the same audit: two releases whose list has the exact same
+// elements, just declared in a different order, were reported as a spurious diff --
+// nothing semantically changed in a values.yaml list's meaning, so this must report
+// zero changes, not "changed" with two full-list dumps.
+func TestCompare_ReorderedIdenticalListElementsAreNotADifference(t *testing.T) {
+	a := parse(t, "list:\n  - name: alice\n    role: admin\n  - name: bob\n    role: viewer\n")
+	b := parse(t, "list:\n  - name: bob\n    role: viewer\n  - name: alice\n    role: admin\n")
+	if changes := instdiff.Compare(a, b); len(changes) != 0 {
+		t.Fatalf("expected 0 changes for a reordered-but-identical list, got %+v", changes)
+	}
+}
+
+// A reorder is only "no difference" when the multiset genuinely matches -- confirm a
+// merely-similar-looking list (same length, mostly overlapping) still reports real
+// differences rather than the order-independence check papering over an actual change.
+func TestCompare_SameLengthListWithOneRealChangeStillReportsIt(t *testing.T) {
+	a := parse(t, "list:\n  - name: alice\n  - name: bob\n")
+	b := parse(t, "list:\n  - name: alice\n  - name: charlie\n")
+	changes := instdiff.Compare(a, b)
+	if len(changes) != 1 || changes[0].Path != "list.[1].name" || changes[0].A != "bob" || changes[0].B != "charlie" {
+		t.Fatalf("expected exactly 1 change at list.[1].name (bob -> charlie), got %+v", changes)
 	}
 }
 

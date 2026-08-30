@@ -9,6 +9,8 @@ package policyeval
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -29,6 +31,21 @@ type conftestResult struct {
 
 type conftestMsg struct {
 	Msg string `json:"msg"`
+}
+
+// ruleIDFor derives a stable rule ID from the violation's own message text rather
+// than a single fixed "POLICY-DENY"/"POLICY-WARN" for every violation any policy in
+// the directory ever produces. A Rego deny/warn rule carries no separate "rule name"
+// in Conftest's JSON output — only the message — so the message itself is the only
+// stable signal available to tell two DIFFERENT violations apart. Two findings with
+// the identical message (the same violation firing on several resources) share one
+// ID on purpose: that's one violation with several instances, not several distinct
+// ones, and grouping them is what makes them individually suppressible as a set
+// without an --ignore-file entry ALSO being all-or-nothing across every unrelated
+// policy in the directory.
+func ruleIDFor(kind, msg string) string {
+	sum := sha256.Sum256([]byte(msg))
+	return fmt.Sprintf("POLICY-%s-%s", kind, hex.EncodeToString(sum[:])[:8])
 }
 
 // Run evaluates every .rego policy in policyDir against docs (the chart's rendered
@@ -95,7 +112,7 @@ func Run(policyDir string, docs []rules.ManifestDoc) ([]rules.Finding, error) {
 		}
 		for _, f := range r.Failures {
 			findings = append(findings, rules.Finding{
-				RuleID:   "POLICY-DENY",
+				RuleID:   ruleIDFor("DENY", f.Msg),
 				Severity: rules.High,
 				Title:    f.Msg,
 				Path:     path,
@@ -103,7 +120,7 @@ func Run(policyDir string, docs []rules.ManifestDoc) ([]rules.Finding, error) {
 		}
 		for _, w := range r.Warnings {
 			findings = append(findings, rules.Finding{
-				RuleID:   "POLICY-WARN",
+				RuleID:   ruleIDFor("WARN", w.Msg),
 				Severity: rules.Medium,
 				Title:    w.Msg,
 				Path:     path,

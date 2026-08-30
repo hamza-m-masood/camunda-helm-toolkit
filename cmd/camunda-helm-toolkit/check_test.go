@@ -150,3 +150,38 @@ func TestCheckBinary_PolicyDirConftestMissing(t *testing.T) {
 		t.Errorf("expected a clear conftest-not-found error, got:\n%s", out)
 	}
 }
+
+// An adversarial audit found that the same custom rule id defined in two DIFFERENT
+// --rules-from files was silently allowed -- each file only validates its own rules in
+// isolation, so nothing ever compared ids across files the way the CCD-prefix
+// collision already was. This proves the fix: a cross-file id collision is a clear
+// load-time error, not two rules quietly reporting under one ambiguous id.
+func TestCheckBinary_RulesFrom_DuplicateIDAcrossFilesIsRejected(t *testing.T) {
+	skipIfChartMissing(t, realChart89)
+
+	dir := t.TempDir()
+	rule := `
+rules:
+  - id: CUSTOM001
+    severity: low
+    title: "duplicate"
+    path: orchestration.replicationFactor
+    condition: exists
+`
+	fileA := filepath.Join(dir, "a.yaml")
+	fileB := filepath.Join(dir, "b.yaml")
+	if err := os.WriteFile(fileA, []byte(rule), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(fileB, []byte(rule), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := runBinary("check", "--chart", realChart89, "--rules-from", fileA, "--rules-from", fileB, "--no-color")
+	if err == nil {
+		t.Fatal("expected a nonzero exit for a duplicate rule id across two --rules-from files")
+	}
+	if !strings.Contains(out, `id "CUSTOM001"`) || !strings.Contains(out, "already defined in") {
+		t.Errorf("expected a clear duplicate-id error naming CUSTOM001 and the earlier source file, got:\n%s", out)
+	}
+}

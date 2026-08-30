@@ -200,11 +200,24 @@ func runCheck(args []string) int {
 		findings = append(findings, check(effective)...)
 	}
 
+	// Each file validates its own rules in isolation (customrules.Parse), so a rule id
+	// reused across two DIFFERENT --rules-from files was never caught anywhere — only
+	// the CCD-prefix collision was. Track which id came from which source as files
+	// load, so a real collision is a clear load-time error instead of two rules
+	// silently reporting under one shared, ambiguous id.
+	seenRuleIDs := map[string]string{}
 	for _, src := range rulesFrom {
 		rf, err := customrules.LoadFrom(src)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "error: loading --rules-from", src, ":", err)
 			return 2
+		}
+		for _, r := range rf.Rules {
+			if prior, ok := seenRuleIDs[r.ID]; ok {
+				fmt.Fprintf(os.Stderr, "error: loading --rules-from %s: rule id %q is already defined in %s\n", src, r.ID, prior)
+				return 2
+			}
+			seenRuleIDs[r.ID] = src
 		}
 		findings = append(findings, rf.Evaluate(effective)...)
 	}

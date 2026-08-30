@@ -51,35 +51,89 @@ func TestRun_DenyAndWarnMapToFindings(t *testing.T) {
 
 	var denyCount, warnCount int
 	for _, f := range findings {
-		switch f.RuleID {
-		case "POLICY-DENY":
+		switch {
+		case strings.HasPrefix(f.RuleID, "POLICY-DENY-"):
 			denyCount++
 			if f.Severity != rules.High {
-				t.Errorf("expected POLICY-DENY to be High severity, got %s", f.Severity)
+				t.Errorf("expected a POLICY-DENY-* finding to be High severity, got %s", f.Severity)
 			}
 			if f.Path != "ConfigMap/flagged" {
 				t.Errorf("expected finding path ConfigMap/flagged, got %s", f.Path)
 			}
-		case "POLICY-WARN":
+		case strings.HasPrefix(f.RuleID, "POLICY-WARN-"):
 			warnCount++
 			if f.Severity != rules.Medium {
-				t.Errorf("expected POLICY-WARN to be Medium severity, got %s", f.Severity)
+				t.Errorf("expected a POLICY-WARN-* finding to be Medium severity, got %s", f.Severity)
 			}
 		default:
 			t.Errorf("unexpected RuleID %s", f.RuleID)
 		}
 	}
 	if denyCount != 1 {
-		t.Errorf("expected exactly 1 POLICY-DENY finding, got %d", denyCount)
+		t.Errorf("expected exactly 1 POLICY-DENY-* finding, got %d", denyCount)
 	}
 	if warnCount != 1 {
-		t.Errorf("expected exactly 1 POLICY-WARN finding, got %d", warnCount)
+		t.Errorf("expected exactly 1 POLICY-WARN-* finding, got %d", warnCount)
 	}
 	// The Secret document matches neither rule body (input.kind == "ConfigMap" is
 	// false for it) so it must contribute zero findings — proves this isn't a
 	// blanket "policy dir was passed" pass/fail but a per-document evaluation.
 	if len(findings) != 2 {
 		t.Fatalf("expected exactly 2 findings total (nothing from the Secret doc), got %d: %+v", len(findings), findings)
+	}
+}
+
+// An adversarial audit found that every violation from every policy in a --policy-dir
+// collapsed into one shared "POLICY-DENY" ID regardless of which distinct rule fired,
+// making --ignore-file suppression all-or-nothing for every policy denial at once and
+// breaking SARIF's one-ruleId-per-rule convention. This proves the fix: two genuinely
+// different violation messages get two different IDs, while the SAME message firing on
+// several resources (the same violation, several instances) still shares one ID —
+// that grouping is intentional, not a regression of it.
+const twoDistinctDenyPolicy = `package main
+
+deny contains msg if {
+	input.kind == "ConfigMap"
+	msg := "first distinct violation"
+}
+
+deny contains msg if {
+	input.kind == "Secret"
+	msg := "second distinct violation"
+}
+`
+
+func TestRun_DistinctMessagesGetDistinctIDs(t *testing.T) {
+	requireConftest(t)
+
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "main.rego"), []byte(twoDistinctDenyPolicy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	docs := []rules.ManifestDoc{
+		{Kind: "ConfigMap", Name: "a", Text: "kind: ConfigMap\nmetadata:\n  name: a\n"},
+		{Kind: "Secret", Name: "b", Text: "kind: Secret\nmetadata:\n  name: b\n"},
+		{Kind: "Secret", Name: "c", Text: "kind: Secret\nmetadata:\n  name: c\n"}, // same message as b, different resource
+	}
+
+	findings, err := policyeval.Run(dir, docs)
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+	if len(findings) != 3 {
+		t.Fatalf("expected 3 findings, got %d: %+v", len(findings), findings)
+	}
+
+	idByPath := map[string]string{}
+	for _, f := range findings {
+		idByPath[f.Path] = f.RuleID
+	}
+	if idByPath["ConfigMap/a"] == idByPath["Secret/b"] {
+		t.Errorf("distinct violation messages must get distinct rule IDs, got the same one: %s", idByPath["ConfigMap/a"])
+	}
+	if idByPath["Secret/b"] != idByPath["Secret/c"] {
+		t.Errorf("the SAME violation message on two different resources should share one rule ID (b=%s, c=%s)", idByPath["Secret/b"], idByPath["Secret/c"])
 	}
 }
 
