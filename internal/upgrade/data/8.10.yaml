@@ -4,7 +4,7 @@ line: "8.10"
 chartMajor: 15
 requiresHelmMajor: 4
 support: alpha
-generatedFrom: f63fb294b2a04fd39cfb1f8eeaf8e8646f4a9103
+generatedFrom: 8cdb1ad23ab7e13f108eea5d4874b7aa8edbe5cb
 keys:
     - old: connectors.logging.level.io.camunda.connector
       migration: connectors.extraConfiguration
@@ -13,7 +13,7 @@ keys:
       default: INFO
       condition: ne (index .Values.connectors.logging.level "io.camunda.connector" | toString) "INFO"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:773
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:734
     - old: global.config.requestBodySize
       migration: the consuming component's extraConfiguration
       action: deprecated
@@ -21,7 +21,7 @@ keys:
       default: 10MB
       condition: ne (.Values.global.config.requestBodySize | toString) "10MB"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:842
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:803
     - old: global.documentStore.type.aws.storeId
       migration: the consuming component's extraConfiguration
       action: deprecated
@@ -29,7 +29,7 @@ keys:
       default: AWS
       condition: ne (.Values.global.documentStore.type.aws.storeId | toString) "AWS"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:848
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:809
     - old: global.documentStore.type.gcp.storeId
       migration: the consuming component's extraConfiguration
       action: deprecated
@@ -37,7 +37,7 @@ keys:
       default: GCP
       condition: ne (.Values.global.documentStore.type.gcp.storeId | toString) "GCP"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:851
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:812
     - old: global.documentStore.type.inmemory.storeId
       migration: the consuming component's extraConfiguration
       action: deprecated
@@ -45,14 +45,14 @@ keys:
       default: INMEMORY
       condition: ne (.Values.global.documentStore.type.inmemory.storeId | toString) "INMEMORY"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:854
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:815
     - old: global.zeebeClusterName
       migration: the consuming component's extraConfiguration
       action: deprecated
       trigger: not-default
       condition: ne (.Values.global.zeebeClusterName | toString) (printf "%s .Release.Name %s-zeebe" "{{" "}}")
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:845
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:806
     - old: optimize.caches.cloudTenantAuthorizations.maxSize
       migration: optimize.extraConfiguration
       action: deprecated
@@ -60,7 +60,7 @@ keys:
       default: "10000"
       condition: ne (.Values.optimize.caches.cloudTenantAuthorizations.maxSize | toString) "10000"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:792
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:753
     - old: optimize.caches.cloudTenantAuthorizations.minFetchIntervalSeconds
       migration: optimize.extraConfiguration
       action: deprecated
@@ -68,7 +68,7 @@ keys:
       default: "600000"
       condition: ne (.Values.optimize.caches.cloudTenantAuthorizations.minFetchIntervalSeconds | toString) "600000"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:795
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:756
     - old: optimize.database.elasticsearch.prefix
       migration: optimize.extraConfiguration
       action: deprecated
@@ -76,7 +76,7 @@ keys:
       default: zeebe-record
       condition: ne (.Values.optimize.database.elasticsearch.prefix | toString) "zeebe-record"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:801
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:762
     - old: optimize.database.opensearch.prefix
       migration: optimize.extraConfiguration
       action: deprecated
@@ -84,7 +84,7 @@ keys:
       default: zeebe-record
       condition: ne (.Values.optimize.database.opensearch.prefix | toString) "zeebe-record"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:804
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:765
     - old: optimize.esLogLevel
       migration: optimize.extraConfiguration
       action: deprecated
@@ -92,7 +92,7 @@ keys:
       default: warn
       condition: ne (.Values.optimize.esLogLevel | toString) "warn"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:786
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:747
     - old: optimize.logLevel
       migration: optimize.extraConfiguration
       action: deprecated
@@ -100,14 +100,14 @@ keys:
       default: info
       condition: ne (.Values.optimize.logLevel | toString) "info"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:780
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:741
     - old: optimize.multitenancy.enabled
       migration: global.multitenancy.enabled
       action: deprecated
       trigger: truthy
       condition: .Values.optimize.multitenancy.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:807
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:768
     - old: optimize.partitionCount
       migration: optimize.extraConfiguration
       action: deprecated
@@ -115,7 +115,7 @@ keys:
       default: "3"
       condition: ne (.Values.optimize.partitionCount | toString) "3"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:798
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:759
     - old: optimize.profiles
       migration: optimize.extraConfiguration
       action: deprecated
@@ -123,7 +123,7 @@ keys:
       default: ccsm
       condition: ne (.Values.optimize.profiles | toString) "ccsm"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:789
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:750
     - old: optimize.upgradeLogLevel
       migration: optimize.extraConfiguration
       action: deprecated
@@ -131,7 +131,7 @@ keys:
       default: info
       condition: ne (.Values.optimize.upgradeLogLevel | toString) "info"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:783
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:744
     - old: orchestration.cpuThreadCount
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -139,7 +139,7 @@ keys:
       default: "3"
       condition: ne (.Values.orchestration.cpuThreadCount | toString) "3"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:689
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:650
     - old: orchestration.data.disk.freeSpace.processing
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -147,7 +147,7 @@ keys:
       default: 2GB
       condition: ne (.Values.orchestration.data.disk.freeSpace.processing | toString) "2GB"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:734
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:695
     - old: orchestration.data.disk.freeSpace.replication
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -155,7 +155,7 @@ keys:
       default: 1GB
       condition: ne (.Values.orchestration.data.disk.freeSpace.replication | toString) "1GB"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:737
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:698
     - old: orchestration.data.snapshotPeriod
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -163,28 +163,28 @@ keys:
       default: 5m
       condition: ne (.Values.orchestration.data.snapshotPeriod | toString) "5m"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:659
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:620
     - old: orchestration.debug
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.debug
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:725
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:686
     - old: orchestration.exporters.camunda.enabled
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: falsy
       condition: not .Values.orchestration.exporters.camunda.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:752
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:713
     - old: orchestration.exporters.zeebe.replicas
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.exporters.zeebe.replicas)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:755
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:716
     - old: orchestration.history.delayBetweenRuns
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -192,7 +192,7 @@ keys:
       default: "2000"
       condition: ne (.Values.orchestration.history.delayBetweenRuns | toString) "2000"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:701
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:662
     - old: orchestration.history.elsRolloverDateFormat
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -200,7 +200,7 @@ keys:
       default: date
       condition: ne (.Values.orchestration.history.elsRolloverDateFormat | toString) "date"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:716
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:677
     - old: orchestration.history.maxDelayBetweenRuns
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -208,14 +208,14 @@ keys:
       default: "60000"
       condition: ne (.Values.orchestration.history.maxDelayBetweenRuns | toString) "60000"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:704
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:665
     - old: orchestration.history.retention.enabled
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.history.retention.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:662
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:623
     - old: orchestration.history.retention.minimumAge
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -223,7 +223,7 @@ keys:
       default: 30d
       condition: ne (.Values.orchestration.history.retention.minimumAge | toString) "30d"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:665
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:626
     - old: orchestration.history.retention.policyName
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -231,7 +231,7 @@ keys:
       default: camunda-history-retention-policy
       condition: ne (.Values.orchestration.history.retention.policyName | toString) "camunda-history-retention-policy"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:668
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:629
     - old: orchestration.history.retention.usageMetricsMinimumAge
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -239,7 +239,7 @@ keys:
       default: 730d
       condition: ne (.Values.orchestration.history.retention.usageMetricsMinimumAge | toString) "730d"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:719
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:680
     - old: orchestration.history.retention.usageMetricsPolicyName
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -247,7 +247,7 @@ keys:
       default: camunda-usage-metrics-retention-policy
       condition: ne (.Values.orchestration.history.retention.usageMetricsPolicyName | toString) "camunda-usage-metrics-retention-policy"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:722
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:683
     - old: orchestration.history.rolloverBatchSize
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -255,7 +255,7 @@ keys:
       default: "100"
       condition: ne (.Values.orchestration.history.rolloverBatchSize | toString) "100"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:707
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:668
     - old: orchestration.history.rolloverInterval
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -263,7 +263,7 @@ keys:
       default: 1d
       condition: ne (.Values.orchestration.history.rolloverInterval | toString) "1d"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:710
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:671
     - old: orchestration.history.waitPeriodBeforeArchiving
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -271,14 +271,14 @@ keys:
       default: 1h
       condition: ne (.Values.orchestration.history.waitPeriodBeforeArchiving | toString) "1h"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:713
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:674
     - old: orchestration.index.prefix
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.index.prefix)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:653
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:614
     - old: orchestration.index.replicas
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -286,7 +286,7 @@ keys:
       default: "1"
       condition: ne (.Values.orchestration.index.replicas | toString) "1"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:656
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:617
     - old: orchestration.ioThreadCount
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -294,14 +294,14 @@ keys:
       default: "3"
       condition: ne (.Values.orchestration.ioThreadCount | toString) "3"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:692
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:653
     - old: orchestration.log4j2
       migration: orchestration.extraConfiguration (file-content kind)
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.log4j2)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:731
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:692
     - old: orchestration.logLevel
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -309,21 +309,21 @@ keys:
       default: info
       condition: ne (.Values.orchestration.logLevel | toString) "info"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:638
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:599
     - old: orchestration.multitenancy.api.enabled
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: falsy
       condition: not .Values.orchestration.multitenancy.api.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:767
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:728
     - old: orchestration.multitenancy.checks.enabled
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.multitenancy.checks.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:764
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:725
     - old: orchestration.partitionCount
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -331,14 +331,14 @@ keys:
       default: "3"
       condition: ne (.Values.orchestration.partitionCount | toString) "3"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:695
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:656
     - old: orchestration.profilesOverride
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.profilesOverride)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:728
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:689
     - old: orchestration.replicationFactor
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -346,14 +346,14 @@ keys:
       default: "3"
       condition: ne (.Values.orchestration.replicationFactor | toString) "3"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:698
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:659
     - old: orchestration.retention.enabled
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.retention.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:671
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:632
     - old: orchestration.retention.minimumAge
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -361,7 +361,7 @@ keys:
       default: 30d
       condition: ne (.Values.orchestration.retention.minimumAge | toString) "30d"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:674
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:635
     - old: orchestration.retention.policyName
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -369,7 +369,7 @@ keys:
       default: zeebe-record-retention-policy
       condition: ne (.Values.orchestration.retention.policyName | toString) "zeebe-record-retention-policy"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:677
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:638
     - old: orchestration.security.authentication.authenticationRefreshInterval
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -377,14 +377,14 @@ keys:
       default: PT30S
       condition: ne (.Values.orchestration.security.authentication.authenticationRefreshInterval | toString) "PT30S"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:683
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:644
     - old: orchestration.security.authentication.oidc.backwardsCompatibleAudiences
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.security.authentication.oidc.backwardsCompatibleAudiences)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:743
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:704
     - old: orchestration.security.authentication.oidc.clientIdClaim
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -392,21 +392,21 @@ keys:
       default: client_id
       condition: ne (.Values.orchestration.security.authentication.oidc.clientIdClaim | toString) "client_id"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:647
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:608
     - old: orchestration.security.authentication.oidc.groupsClaim
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.security.authentication.oidc.groupsClaim)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:650
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:611
     - old: orchestration.security.authentication.oidc.preferUsernameClaim
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.security.authentication.oidc.preferUsernameClaim
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:680
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:641
     - old: orchestration.security.authentication.oidc.redirectUrl
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -414,14 +414,14 @@ keys:
       default: http://localhost:8080
       condition: ne (.Values.orchestration.security.authentication.oidc.redirectUrl | toString) "http://localhost:8080"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:758
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:719
     - old: orchestration.security.authentication.oidc.scope
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.security.authentication.oidc.scope)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:740
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:701
     - old: orchestration.security.authentication.oidc.usernameClaim
       migration: orchestration.extraConfiguration
       action: deprecated
@@ -429,42 +429,42 @@ keys:
       default: preferred_username
       condition: ne (.Values.orchestration.security.authentication.oidc.usernameClaim | toString) "preferred_username"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:644
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:605
     - old: orchestration.security.authentication.unprotectedApi
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.security.authentication.unprotectedApi
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:641
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:602
     - old: orchestration.security.authorizations.enabled
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: falsy
       condition: not .Values.orchestration.security.authorizations.enabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:686
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:647
     - old: orchestration.security.initialization.authorizations
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.security.initialization.authorizations)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:749
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:710
     - old: orchestration.security.initialization.mappingRules
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty .Values.orchestration.security.initialization.mappingRules)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:746
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:707
     - old: orchestration.upgrade.allowPreReleaseImages
       migration: orchestration.extraConfiguration
       action: deprecated
       trigger: truthy
       condition: .Values.orchestration.upgrade.allowPreReleaseImages
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:761
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:722
     - old: webModeler.restapi.logging.level.io.camunda.modeler
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
@@ -472,7 +472,7 @@ keys:
       default: INFO
       condition: ne (index $wm.restapi.logging.level "io.camunda.modeler" | toString) "INFO"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:833
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:794
     - old: webModeler.restapi.logging.level.io.grpc
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
@@ -480,14 +480,14 @@ keys:
       default: INFO
       condition: ne (index $wm.restapi.logging.level "io.grpc" | toString) "INFO"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:836
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:797
     - old: webModeler.restapi.mail.fromAddress
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty $wm.restapi.mail.fromAddress)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:815
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:776
     - old: webModeler.restapi.mail.fromName
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
@@ -495,14 +495,14 @@ keys:
       default: Camunda 8
       condition: ne ($wm.restapi.mail.fromName | toString) "Camunda 8"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:818
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:779
     - old: webModeler.restapi.mail.smtpHost
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty $wm.restapi.mail.smtpHost)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:821
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:782
     - old: webModeler.restapi.mail.smtpPort
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
@@ -510,271 +510,243 @@ keys:
       default: "587"
       condition: ne ($wm.restapi.mail.smtpPort | toString) "587"
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:830
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:791
     - old: webModeler.restapi.mail.smtpTlsEnabled
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
       trigger: falsy
       condition: not $wm.restapi.mail.smtpTlsEnabled
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:827
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:788
     - old: webModeler.restapi.mail.smtpUser
       migration: webModeler.restapi.extraConfiguration
       action: deprecated
       trigger: non-empty
       condition: not (empty $wm.restapi.mail.smtpUser)
       removedIn: "16"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:824
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:785
     - old: connectors.security.authentication.oidc.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.connectors.security.authentication.oidc "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1359
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1285
     - old: connectors.security.authentication.oidc.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.connectors.security.authentication.oidc "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1364
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1290
     - old: elasticsearch
       action: removed
       trigger: presence
       condition: hasKey .Values "elasticsearch"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1575
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1500
     - old: global.documentStore.type.aws.accessKeyIdKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.aws "accessKeyIdKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1084
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1010
     - old: global.documentStore.type.aws.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.aws "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1079
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1005
     - old: global.documentStore.type.aws.secretAccessKeyKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.aws "secretAccessKeyKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1089
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1015
     - old: global.documentStore.type.gcp.credentialsKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.gcp "credentialsKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1099
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1025
     - old: global.documentStore.type.gcp.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.gcp "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1094
-    - old: global.elasticsearch.auth.existingSecret
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1020
+    - old: global.elasticsearch
+      migration: optimize.database.elasticsearch.* (enabled, url, auth, tls.secret, prefix) for Optimize and orchestration.data.secondaryStorage.elasticsearch.* (or .type) for the Orchestration Cluster; clusterName has no replacement (app default is unchanged, set camunda.data.secondary-storage.elasticsearch.cluster-name via orchestration.extraConfiguration if needed); the JKS truststore password injection is removed, use global.tls.caBundle.secret (PEM) or the component's javaOpts
       action: removed
       trigger: presence
-      condition: hasKey .Values.global.elasticsearch.auth "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1006
-    - old: global.elasticsearch.auth.existingSecretKey
-      action: removed
-      trigger: presence
-      condition: hasKey .Values.global.elasticsearch.auth "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1011
-    - old: global.elasticsearch.auth.password
-      action: removed
-      trigger: presence
-      condition: hasKey .Values.global.elasticsearch.auth "password"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1001
-    - old: global.elasticsearch.tls.existingSecret
-      action: removed
-      trigger: presence
-      condition: hasKey .Values.global.elasticsearch.tls "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1508
+      condition: hasKey .Values.global "elasticsearch"
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1437
     - old: global.identity.auth.admin.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.admin "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1043
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:969
     - old: global.identity.auth.admin.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.admin "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1048
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:974
     - old: global.identity.auth.identity.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.identity "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1053
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:979
     - old: global.identity.auth.identity.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.identity "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1058
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:984
     - old: global.identity.auth.optimize.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.optimize "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1063
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:989
     - old: global.identity.auth.optimize.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.optimize "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1068
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:994
     - old: global.identity.keycloak.auth.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.keycloak.auth "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1492
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1418
     - old: global.identity.keycloak.auth.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.keycloak.auth "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1497
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1423
     - old: global.ingress.host
       action: removed
       trigger: presence
       condition: hasKey .Values.global.ingress "host"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1481
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1407
     - old: global.license.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.license "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:985
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:953
     - old: global.license.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.license "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:990
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:958
     - old: global.license.key
       action: removed
       trigger: presence
       condition: hasKey .Values.global.license "key"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:980
-    - old: global.opensearch.auth.existingSecret
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:948
+    - old: global.opensearch
+      migration: optimize.database.opensearch.* (enabled, url, auth, tls.secret, prefix, aws.enabled) for Optimize and orchestration.data.secondaryStorage.opensearch.* (or .type) for the Orchestration Cluster; clusterName has no replacement (app default is unchanged, set camunda.data.secondary-storage.opensearch.cluster-name via orchestration.extraConfiguration if needed); the JKS truststore password injection is removed, use global.tls.caBundle.secret (PEM) or the component's javaOpts
       action: removed
       trigger: presence
-      condition: hasKey .Values.global.opensearch.auth "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1027
-    - old: global.opensearch.auth.existingSecretKey
-      action: removed
-      trigger: presence
-      condition: hasKey .Values.global.opensearch.auth "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1032
-    - old: global.opensearch.auth.password
-      action: removed
-      trigger: presence
-      condition: hasKey .Values.global.opensearch.auth "password"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1022
-    - old: global.opensearch.tls.existingSecret
-      action: removed
-      trigger: presence
-      condition: hasKey .Values.global.opensearch.tls "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1519
+      condition: hasKey .Values.global "opensearch"
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1443
     - old: global.secrets.annotations
       action: removed
       trigger: unknown
       condition: and .Values.global.secrets (hasKey .Values.global.secrets "annotations")
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1461
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1387
     - old: global.secrets.autoGenerated
       action: removed
       trigger: unknown
       condition: and .Values.global.secrets .Values.global.secrets.autoGenerated
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1451
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1377
     - old: global.secrets.name
       action: removed
       trigger: unknown
       condition: and .Values.global.secrets (hasKey .Values.global.secrets "name")
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1456
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1382
     - old: identity.externalDatabase.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.externalDatabase "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1339
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1265
     - old: identity.externalDatabase.existingSecretPasswordKey
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.externalDatabase "existingSecretPasswordKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1344
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1270
     - old: identity.externalDatabase.password
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.externalDatabase "password"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1334
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1260
     - old: identity.firstUser.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.firstUser "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1324
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1250
     - old: identity.firstUser.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.firstUser "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1329
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1255
     - old: identity.firstUser.password
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.firstUser "password"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1319
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1245
     - old: identityKeycloak
       action: removed
       trigger: presence
       condition: hasKey .Values "identityKeycloak"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1560
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1485
     - old: identityPostgresql
       action: removed
       trigger: presence
       condition: hasKey .Values "identityPostgresql"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1565
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1490
     - old: orchestration.profiles.identity
       action: removed
       trigger: presence
       condition: hasKey .Values.orchestration.profiles "identity"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1532
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1457
     - old: orchestration.security.authentication.oidc.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.orchestration.security.authentication.oidc "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1379
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1305
     - old: orchestration.security.authentication.oidc.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.orchestration.security.authentication.oidc "existingSecretKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1384
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1310
     - old: webModeler.restapi.externalDatabase.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1404
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1330
     - old: webModeler.restapi.externalDatabase.existingSecretPasswordKey
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "existingSecretPasswordKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1409
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1335
     - old: webModeler.restapi.externalDatabase.password
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "password"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1399
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1325
     - old: webModeler.restapi.externalDatabase.user
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "user"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1547
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1472
     - old: webModeler.restapi.mail.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.mail "existingSecret"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1419
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1345
     - old: webModeler.restapi.mail.existingSecretPasswordKey
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.mail "existingSecretPasswordKey"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1424
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1350
     - old: webModeler.restapi.mail.smtpPassword
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.mail "smtpPassword"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1414
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1340
     - old: webModelerPostgresql
       action: removed
       trigger: presence
       condition: hasKey .Values "webModelerPostgresql"
-      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1570
+      source: charts/camunda-platform-8.10/templates/common/constraints.tpl:1495
     - old: camundaHub.console.*
       new: console.*
       action: renamed

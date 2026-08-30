@@ -3,7 +3,7 @@
 line: "8.8"
 chartMajor: 13
 support: supportStandard
-generatedFrom: f63fb294b2a04fd39cfb1f8eeaf8e8646f4a9103
+generatedFrom: 8cdb1ad23ab7e13f108eea5d4874b7aa8edbe5cb
 keys:
     - old: connectors.ingress
       action: removed
