@@ -36,6 +36,8 @@ func main() {
 		os.Exit(runInit(os.Args[2:]))
 	case "check":
 		os.Exit(runCheck(os.Args[2:]))
+	case "diff":
+		os.Exit(runDiff(os.Args[2:]))
 	case "upgrade":
 		os.Exit(runUpgrade(os.Args[2:]))
 	case "generate":
@@ -71,6 +73,7 @@ USAGE:
   camunda-helm-toolkit check --chart <path> [-f values.yaml]...       Pre-install: chart + overlay(s)
   camunda-helm-toolkit check --release <name> -n <namespace>          Post-install: an installed release
                               [--chart <path>] [--live]
+  camunda-helm-toolkit diff --release-a <n1> --release-b <n2>         Structural diff between two installed releases
   camunda-helm-toolkit upgrade --release <name> -n <namespace>        Plan an upgrade to a newer chart line
                               [--to 8.10] [--write-values out.yaml]
   camunda-helm-toolkit upgrade -f values.yaml --from 8.9 [--to 8.10]  Plan from a values file, no cluster
@@ -116,6 +119,19 @@ FLAGS (check):
   --fail-on string         Minimum severity causing a nonzero exit: critical|high|medium|low (default "high")
   --ignore-file string     Suppression file (default: auto-load .chartdoctor-ignore.yaml from cwd if present)
   --show-suppressed        Also print/emit suppressed findings, not just their count
+  --rules-from string      Custom rules file, local path or http(s):// URL (repeatable) — see README "Custom rules"
+  --policy-dir string      Directory of Conftest/Rego policies to run against the rendered manifests (requires
+                            --chart and conftest on PATH) — see README "Policy layer (Conftest/Rego)"
+
+FLAGS (diff):
+  --release-a string       First installed release name (required)
+  --namespace-a string     Namespace of the first release (default "default")
+  --release-b string       Second installed release name (required)
+  --namespace-b string     Namespace of the second release (default "default")
+  --format string          Output format: text|json (default "text")
+
+Both releases are read from the same cluster context this tool is already pointed at —
+comparing across two different kubeconfig contexts/clusters isn't supported.
 
 FLAGS (upgrade):
   --release string         Installed Helm release name (reads the values you supplied, not chart defaults)
