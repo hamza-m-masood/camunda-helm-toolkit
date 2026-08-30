@@ -171,7 +171,14 @@ func runCheck(args []string) int {
 	}
 
 	if *chart != "" {
-		if docs, err := renderManifests(*chart, effective); err != nil {
+		// A real release name matters here too if it's known — a future manifest check
+		// could reasonably key off labels, so don't hand it a placeholder just because
+		// today's checks happen not to care.
+		renderRelease := *release
+		if renderRelease == "" {
+			renderRelease = noReleaseNamePlaceholder
+		}
+		if docs, err := renderManifests(*chart, effective, renderRelease); err != nil {
 			fmt.Fprintln(os.Stderr, "warning: skipping manifest checks:", err)
 		} else {
 			for _, check := range rules.AllManifestChecks() {
@@ -289,10 +296,18 @@ func loadYAMLFile(path string) (values.Values, error) {
 	return values.ParseYAML(data)
 }
 
+// noReleaseNamePlaceholder is used only when no real release name is available (e.g.
+// `check --chart` in pre-install mode, before anything is ever `helm install`ed). It
+// must never be used by a caller that generates release-scoped resources — see
+// helmrender.Template's doc comment.
+const noReleaseNamePlaceholder = "camunda-helm-toolkit"
+
 // renderManifests writes the effective (already-merged) values to a temp file and
 // templates the chart against them, so manifest-based checks see exactly the same
-// configuration the values-based checks just evaluated.
-func renderManifests(chart string, effective values.Values) ([]rules.ManifestDoc, error) {
+// configuration the values-based checks just evaluated. releaseName should be the real
+// installed (or intended) release name whenever one is known; pass
+// noReleaseNamePlaceholder only when there genuinely isn't one yet.
+func renderManifests(chart string, effective values.Values, releaseName string) ([]rules.ManifestDoc, error) {
 	tmp, err := os.CreateTemp("", "ccd-effective-*.yaml")
 	if err != nil {
 		return nil, err
@@ -310,7 +325,7 @@ func renderManifests(chart string, effective values.Values) ([]rules.ManifestDoc
 	if err := tmp.Close(); err != nil {
 		return nil, err
 	}
-	raw, err := helmrender.Template(chart, []string{tmp.Name()})
+	raw, err := helmrender.Template(chart, []string{tmp.Name()}, releaseName)
 	if err != nil {
 		return nil, err
 	}

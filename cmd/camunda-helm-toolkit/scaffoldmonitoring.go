@@ -47,7 +47,7 @@ func runScaffoldMonitoring(args []string) int {
 		merged = values.DeepMerge(merged, ov)
 	}
 
-	docs, err := renderManifests(*chart, merged)
+	docs, err := renderManifests(*chart, merged, *release)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error rendering chart:", err)
 		return 2

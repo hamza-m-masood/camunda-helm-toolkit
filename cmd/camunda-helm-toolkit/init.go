@@ -183,7 +183,7 @@ func runInit(args []string) int {
 	// A render failure means the generated values.yaml cannot actually be installed at
 	// all -- strictly worse than any individual check finding, and never something to
 	// paper over as "skipping manifest rules" while still reporting success below.
-	docs, rmErr := renderManifests(*chart, merged)
+	docs, rmErr := renderManifests(*chart, merged, a.ReleaseName)
 	if rmErr != nil {
 		fmt.Fprintln(os.Stderr, "error: the generated values.yaml does not render with this chart -- this is a bug in `init`, not something to use:")
 		fmt.Fprintln(os.Stderr, " ", rmErr)
