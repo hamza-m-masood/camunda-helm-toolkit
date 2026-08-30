@@ -20,6 +20,22 @@ func runSize(args []string) int {
 		fmt.Fprintln(os.Stderr, "error: --throughput and --avg-payload-kb are both required and must be > 0")
 		return 2
 	}
+	// capacityplan.Recommend treats any RetentionDays <= 0 as "not specified, use the
+	// default" — correct for callers that never set the field at all, but a user who
+	// explicitly typed --retention-days 0 (or a negative number) on this CLI gets the
+	// same silent substitution with no indication their input was overridden. flag's
+	// own zero value can't tell "omitted" from "explicitly 0" apart on its own, so
+	// check which flags were actually set and only reject a BAD explicit value.
+	explicitRetentionDays := false
+	fs.Visit(func(f *flag.Flag) {
+		if f.Name == "retention-days" {
+			explicitRetentionDays = true
+		}
+	})
+	if explicitRetentionDays && *retentionDays <= 0 {
+		fmt.Fprintf(os.Stderr, "error: --retention-days must be a positive number of days, got %d (omit the flag entirely to use the default of 7)\n", *retentionDays)
+		return 2
+	}
 
 	rec := capacityplan.Recommend(capacityplan.Input{
 		ThroughputPerSec: *throughput,
