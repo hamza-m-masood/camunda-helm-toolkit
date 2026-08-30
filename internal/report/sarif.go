@@ -84,12 +84,29 @@ func sarifLevel(s rules.Severity) string {
 func WriteSARIF(w io.Writer, findings []rules.Finding) error {
 	Sort(findings)
 
+	declared := map[string]bool{}
 	var ruleDefs []sarifRule
 	for _, m := range rules.AllRuleMetas() {
 		ruleDefs = append(ruleDefs, sarifRule{
 			ID:                   m.ID,
 			ShortDescription:     sarifText{Text: m.Title},
 			DefaultConfiguration: sarifDefaultConfig{Level: sarifLevel(m.Severity)},
+		})
+		declared[m.ID] = true
+	}
+	// Custom rules (--rules-from) and policy findings (--policy-dir) carry IDs the
+	// static catalog above has never heard of — synthesize a minimal declaration from
+	// the finding itself so every result's ruleId still resolves to a declared rule,
+	// rather than leaving SARIF's back-reference dangling for a consumer that checks it.
+	for _, f := range findings {
+		if declared[f.RuleID] {
+			continue
+		}
+		declared[f.RuleID] = true
+		ruleDefs = append(ruleDefs, sarifRule{
+			ID:                   f.RuleID,
+			ShortDescription:     sarifText{Text: f.Title},
+			DefaultConfiguration: sarifDefaultConfig{Level: sarifLevel(f.Severity)},
 		})
 	}
 
