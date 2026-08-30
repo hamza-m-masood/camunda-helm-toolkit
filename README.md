@@ -219,6 +219,68 @@ suppress:
 never silently dropped: the summary line always shows a count, and `--show-suppressed`
 lists them in full.
 
+## Custom rules
+
+`check --rules-from <path-or-url>` (repeatable, local path or `http(s)://`) loads
+operator-defined rules from a small declarative format, evaluated against the exact
+same effective values the 16 built-in rules see:
+
+```yaml
+rules:
+  - id: CUSTOM001                 # required; must not start with "CCD" — that prefix
+                                   # is reserved for rules this project has verified
+                                   # against the real chart, which yours has not
+    severity: high                 # critical|high|medium|low
+    title: "orchestration.podDisruptionBudget is disabled (org policy)"
+    path: orchestration.podDisruptionBudget.enabled   # same dot/"[N]" syntax as everywhere else
+    condition: equals               # exists | absent | equals | notEquals | matches (regex)
+    value: "false"                  # required for equals/notEquals/matches
+    detail: "..."
+    remediation: "..."
+```
+
+Findings from a custom rule flow through exactly the same pipeline as a built-in one —
+text, JSON, SARIF, suppression file, `--fail-on` — nothing about them is second-class.
+`equals`/`notEquals`/`matches` all require the path to actually resolve; "the path was
+never set" is its own condition (`absent`), not an implicit case of `notEquals` also
+happening to match, so "flag if absent OR wrong value" is two rules, not one surprising
+one.
+
+This is the lightweight tier: no policy language to learn, but limited to "does a value
+exist / equal / match a pattern". For anything that needs real logic — see below.
+
+## Policy layer (Conftest/Rego)
+
+`check --policy-dir <dir>` (requires `--chart`) evaluates a directory of
+[Conftest](https://www.conftest.dev/)/Rego policies against the chart's *rendered
+manifests* — the same `helm template` output the built-in manifest-based rules already
+consume. This is deliberately a separate, more expressive tier from custom rules above,
+not a second way to do the same thing: custom rules cover "does a value look right";
+this tier is for cross-field logic and anything else Rego can express that a
+path/condition/value check can't reach.
+
+```rego
+package main
+
+deny contains msg if {
+  input.kind == "StatefulSet"
+  # ... your own condition ...
+  msg := "why this failed"
+}
+
+warn contains msg if {
+  # ...
+}
+```
+
+`deny` findings map to `High`, `warn` to `Medium`, through the same pipeline as
+everything else. Requires `conftest` on `PATH` — built and tested against Conftest's
+current OPA runtime, which needs the `if`/`contains` keywords above (older Rego syntax
+without them will fail to load). If `conftest` isn't installed, or the chart doesn't
+render, `--policy-dir` fails loudly rather than silently skipping your policies — a
+`--policy-dir` that quietly evaluates nothing is exactly the kind of "looks configured,
+isn't" gap this whole tool exists to catch elsewhere, not repeat here.
+
 ## Output formats
 
 `--json` for machine-readable output, or `--format sarif` for GitHub code-scanning / PR
@@ -274,11 +336,23 @@ CronJob + least-privilege RBAC that reruns `check --live` on a schedule and repo
 built from this repo's `Dockerfile` (published to `ghcr.io/hamza-m-masood/camunda-helm-toolkit`
 on tag push).
 
+**`diff --release-a <n1> --namespace-a <ns1> --release-b <n2> --namespace-b <ns2>`** —
+a structural diff between two installed releases' effective values (staging vs prod,
+before vs after a manual change someone forgot to write down). Diffs the *parsed* trees,
+not the raw YAML text, so two releases that differ only in key order or formatting
+report zero differences — a text diff of the same two `helm get values` dumps would not.
+Arrays are compared as opaque values (Helm replaces them wholesale, never merges
+element-by-element, so that's the meaningful diff unit). Both releases must be in the
+cluster this tool is already pointed at; `--format json` for machine consumption. Exit
+code follows `diff(1)`: `0` identical, `1` differences found, `2` on error.
+
 ## Exit codes
 
 `0` clean (at or below the `--fail-on` threshold) · `1` worst finding is medium/low ·
-`2` worst finding is high · `3` worst finding is critical. All commands use the same
-scale.
+`2` worst finding is high · `3` worst finding is critical. Every finding-producing
+command uses this same severity scale — `diff` is the one exception, since it has no
+severity concept: it follows the plain `diff(1)` convention instead (`0` identical, `1`
+differences found, `2` on error).
 
 ## How this was built
 
