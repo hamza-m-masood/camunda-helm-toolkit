@@ -1,0 +1,6 @@
+chore: regenerate embedded upgrade migration data from the current chart
+
+Opened automatically by scheduled-migration-refresh.yaml -- review the diff,
+run the full test suite, and spot-check `upgrade` against a values file that
+exercises whatever changed before merging. See internal/upgrade/data_test.go
+and internal/upgrade/extract_test.go for what this data feeds.

@@ -29,11 +29,14 @@ jobs:
   # The upgrade migration data is generated from the chart's constraints.tpl helpers.
   # Regenerating against the chart's main branch here means a new deprecation upstream
   # shows up as a failing check with a diff, rather than as findings this tool silently
-  # stops reporting.
+  # stops reporting. This is a real, blocking check -- it used to run continue-on-error,
+  # which is exactly why it went unnoticed for months: a soft warning nobody is required
+  # to look at is indistinguishable from no check at all. The scheduled-refresh.yaml
+  # workflow catches drift proactively on its own schedule so this rarely fires on an
+  # unrelated PR by surprise; if it does, that IS the point.
   migration-data-drift:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0

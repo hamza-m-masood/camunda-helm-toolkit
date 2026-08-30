@@ -1,0 +1,81 @@
+name: scheduled-migration-refresh
+
+# migration-data-drift in ci.yaml only ever runs when someone pushes to this repo --
+# if nobody touches it for a while, the chart can drift underneath it with nothing to
+# notice until the next unrelated push happens to trip it. This runs independently of
+# any push here, proactively, so staleness is caught (and a fix proposed) even during a
+# stretch where this repo itself sees no activity.
+on:
+  schedule:
+    - cron: "0 6 * * 1" # every Monday, 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: scheduled-migration-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check out camunda-platform-helm
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: camunda/camunda-platform-helm
+          path: .chart-repo
+
+      - name: Regenerate
+        run: |
+          go run ./cmd/camunda-helm-toolkit generate \
+            --chart-repo .chart-repo --lines 8.8,8.9,8.10
+
+      # The commit message and PR body text live in .github/scripts/ as plain files,
+      # not inline heredocs -- a heredoc's content must stay indented to match this
+      # block's own YAML indentation (it's a YAML block scalar; a line that dedents
+      # below the block's level ends it and breaks parsing), but bash then embeds that
+      # same leading whitespace literally into the message. A plain file sidesteps
+      # both problems at once instead of fighting one to fix the other.
+      - name: Open or update a PR if anything changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- internal/upgrade/data; then
+            echo "Migration data is already up to date with the chart's main branch."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          branch="auto/migration-data-refresh"
+          git switch -C "$branch"
+          git add internal/upgrade/data
+          git commit -F .github/scripts/migration-refresh-commit-message.txt
+          git push --force origin "$branch"
+
+          if gh pr view "$branch" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            echo "PR already open on $branch, updated it in place."
+            exit 0
+          fi
+
+          cp .github/scripts/migration-refresh-pr-body.md /tmp/prbody.md
+          {
+            echo
+            echo '```'
+            git diff --stat -- internal/upgrade/data
+            echo '```'
+          } >> /tmp/prbody.md
+          gh pr create --base main --head "$branch" \
+            --title "chore: regenerate embedded upgrade migration data from the current chart" \
+            --body-file /tmp/prbody.md
