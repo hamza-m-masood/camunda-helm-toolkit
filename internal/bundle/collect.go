@@ -74,11 +74,13 @@ func Plan(release, namespace string) []string {
 
 var nodeIdentifyingFieldRe = regexp.MustCompile(`(?im)^(\s*(name|nodeName|hostIP|podIP|internalIP|externalIP)\s*:\s*).*$`)
 
-// redactInfra strips node/pod identifying details (names, IPs) from text this
-// package didn't structure itself (kubectl describe/get -o wide output is plain
-// text, not something RedactValues' map-walk can operate on).
+// redactInfra strips node/pod identifying details (names, IPs) and credential-shaped
+// values (e.g. a literal env var under "Environment:") from text this package didn't
+// structure itself — kubectl describe/get -o wide output is plain text, not something
+// RedactValues' map-walk can operate on.
 func redactInfra(s string) string {
-	return nodeIdentifyingFieldRe.ReplaceAllString(s, "${1}<redacted>")
+	s = nodeIdentifyingFieldRe.ReplaceAllString(s, "${1}<redacted>")
+	return RedactDescribeText(s)
 }
 
 // Collect gathers everything Plan lists. findingsJSON is the already-computed

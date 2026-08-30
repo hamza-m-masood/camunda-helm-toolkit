@@ -34,8 +34,25 @@ func RedactValues(v map[string]interface{}) map[string]interface{} {
 func redactValue(v interface{}, underSensitiveKey bool) interface{} {
 	switch t := v.(type) {
 	case map[string]interface{}:
+		// The {name: "X", value: "Y"} idiom (the standard Kubernetes/Helm env-var
+		// shape — orchestration.env, extraEnvVars, etc.) hides the sensitive signal in
+		// name's VALUE, not in any map key: "name" and "value" are themselves
+		// innocuous key names, so the walk below would otherwise never notice. If
+		// name's value looks credential-shaped, redact the sibling "value" field
+		// directly, independent of whatever ancestor key this map sits under.
+		envValueRedact := false
+		if name, ok := t["name"].(string); ok {
+			if _, hasValue := t["value"]; hasValue {
+				envValueRedact = sensitiveKeyRe.MatchString(name)
+			}
+		}
+
 		out := make(map[string]interface{}, len(t))
 		for k, val := range t {
+			if envValueRedact && k == "value" {
+				out[k] = "<redacted>"
+				continue
+			}
 			out[k] = redactValue(val, underSensitiveKey || sensitiveKeyRe.MatchString(k))
 		}
 		return out
@@ -51,4 +68,31 @@ func redactValue(v interface{}, underSensitiveKey bool) interface{} {
 		}
 		return t
 	}
+}
+
+// describeLineRe matches one "kubectl describe"-style "Key:  value" line: a single
+// whitespace-free key token immediately followed by a colon, then the value after
+// however much column-alignment padding kubectl used (its width varies with the
+// longest key in that block, so this can't assume a fixed number of spaces — but that
+// padding is horizontal only: it must not include \n, or the pattern bridges across an
+// unrelated heading line straight into the next line's content and misattributes it).
+// A "Some Words:" heading (a space inside the key, as kubectl uses for section titles
+// like "Restart Count:") never matches — [^\s:]+ can't cross the embedded space — so
+// this only ever fires on single-token keys, exactly the shape a real env var name has.
+var describeLineRe = regexp.MustCompile(`(?m)^([ \t]*)([^\s:]+):([ \t]+)(.*)$`)
+
+// RedactDescribeText applies the same credential-shaped-key policy RedactValues uses
+// on structured YAML to free-form "kubectl describe" text, which has no structure to
+// walk. This exists specifically because `kubectl describe pod` prints every
+// container's env vars verbatim under "Environment:" — a literal (non-secretKeyRef)
+// value there is not otherwise redacted anywhere else in this package.
+func RedactDescribeText(s string) string {
+	return describeLineRe.ReplaceAllStringFunc(s, func(line string) string {
+		m := describeLineRe.FindStringSubmatch(line)
+		if m == nil || !sensitiveKeyRe.MatchString(m[2]) {
+			return line
+		}
+		indent, key, sep := m[1], m[2], m[3]
+		return indent + key + ":" + sep + "<redacted>"
+	})
 }
