@@ -3,7 +3,7 @@
 line: "8.9"
 chartMajor: 14
 support: supportStandard
-generatedFrom: 8cdb1ad23ab7e13f108eea5d4874b7aa8edbe5cb
+generatedFrom: 7a4c9bd291cd2494ca94388d041c17197b3ee51f
 keys:
     - old: connectors.security.authentication.oidc.existingSecret
       action: removed

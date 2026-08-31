@@ -4,7 +4,7 @@ line: "8.10"
 chartMajor: 15
 requiresHelmMajor: 4
 support: alpha
-generatedFrom: 8cdb1ad23ab7e13f108eea5d4874b7aa8edbe5cb
+generatedFrom: 7a4c9bd291cd2494ca94388d041c17197b3ee51f
 keys:
     - old: connectors.logging.level.io.camunda.connector
       migration: connectors.extraConfiguration
