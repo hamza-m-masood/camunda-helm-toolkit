@@ -2,91 +2,90 @@
 # Source: charts/camunda-platform-8.8/templates/*/constraints.tpl
 line: "8.8"
 chartMajor: 13
-support: supportStandard
-generatedFrom: 8cdb1ad23ab7e13f108eea5d4874b7aa8edbe5cb
+generatedFrom: 27f4b5367dbeeb00f15c716170e91e5be3419667
 keys:
     - old: connectors.ingress
       action: removed
       trigger: unknown
       condition: (.Values.connectors.ingress).enabled
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:659
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:755
     - old: console.ingress
       action: removed
       trigger: unknown
       condition: (.Values.console.ingress).enabled
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:649
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:745
     - old: identity.ingress
       action: removed
       trigger: unknown
       condition: (.Values.identity.ingress).enabled
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:644
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:740
     - old: orchestration.ingress.rest
       action: removed
       trigger: unknown
       condition: ((.Values.orchestration.ingress).rest).enabled
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:664
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:760
     - old: webModeler.ingress
       action: removed
       trigger: unknown
       condition: (.Values.webModeler.ingress).enabled
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:654
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:750
     - old: global.elasticsearch.host
       new: global.elasticsearch.url.host
       action: renamed
       trigger: truthy
       condition: .Values.global.elasticsearch.host
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:560
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:656
     - old: global.elasticsearch.port
       new: global.elasticsearch.url.port
       action: renamed
       trigger: truthy
       condition: .Values.global.elasticsearch.port
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:566
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:662
     - old: global.elasticsearch.protocol
       new: global.elasticsearch.url.protocol
       action: renamed
       trigger: truthy
       condition: .Values.global.elasticsearch.protocol
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:554
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:650
     - old: 'global.elasticsearch.url: "" (string)'
       new: 'global.elasticsearch.url: {} (dict)'
       action: renamed
       trigger: unknown
       condition: eq (kindOf .Values.global.elasticsearch.url) "string"
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:548
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:644
     - old: global.security.authorizations
       new: orchestration.security.authorizations
       action: renamed
       trigger: unknown
       condition: and (hasKey .Values.global "security") (hasKey .Values.global.security "authorizations")
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:680
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:776
     - old: global.security.initialization
       new: orchestration.security.initialization
       action: renamed
       trigger: unknown
       condition: and (hasKey .Values.global "security") (hasKey .Values.global.security "initialization")
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:689
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:785
     - old: identity.keycloak
       new: identityKeycloak
       action: renamed
       trigger: truthy
       condition: .Values.identity.keycloak
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:583
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:679
     - old: identity.postgresql
       new: identityPostgresql
       action: renamed
       trigger: truthy
       condition: .Values.identity.postgresql
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:593
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:689
     - old: postgresql
       new: webModelerPostgresql
       action: renamed
       trigger: truthy
       condition: .Values.postgresql
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:611
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:707
     - old: zeebe-gateway
       new: zeebeGateway
       action: renamed
       trigger: unknown
       condition: index .Values "zeebe-gateway"
-      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:630
+      source: charts/camunda-platform-8.8/templates/common/constraints.tpl:726
