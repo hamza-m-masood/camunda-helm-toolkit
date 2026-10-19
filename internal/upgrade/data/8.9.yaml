@@ -2,201 +2,200 @@
 # Source: charts/camunda-platform-8.9/templates/*/constraints.tpl
 line: "8.9"
 chartMajor: 14
-support: supportStandard
-generatedFrom: 8cdb1ad23ab7e13f108eea5d4874b7aa8edbe5cb
+generatedFrom: 4005f793c7423ff4fad3336bc040cd14a5cc6ea0
 keys:
     - old: connectors.security.authentication.oidc.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.connectors.security.authentication.oidc "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:818
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1072
     - old: connectors.security.authentication.oidc.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.connectors.security.authentication.oidc "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:823
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1077
     - old: global.documentStore.type.aws.accessKeyIdKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.aws "accessKeyIdKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:750
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1004
     - old: global.documentStore.type.aws.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.aws "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:745
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:999
     - old: global.documentStore.type.aws.secretAccessKeyKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.aws "secretAccessKeyKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:755
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1009
     - old: global.documentStore.type.gcp.credentialsKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.gcp "credentialsKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:765
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1019
     - old: global.documentStore.type.gcp.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.documentStore.type.gcp "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:760
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1014
     - old: global.elasticsearch.auth.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.elasticsearch.auth "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:672
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:926
     - old: global.elasticsearch.auth.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.elasticsearch.auth "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:677
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:931
     - old: global.elasticsearch.auth.password
       action: removed
       trigger: presence
       condition: hasKey .Values.global.elasticsearch.auth "password"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:667
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:921
     - old: global.identity.auth.admin.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.admin "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:709
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:963
     - old: global.identity.auth.admin.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.admin "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:714
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:968
     - old: global.identity.auth.identity.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.identity "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:719
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:973
     - old: global.identity.auth.identity.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.identity "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:724
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:978
     - old: global.identity.auth.optimize.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.optimize "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:729
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:983
     - old: global.identity.auth.optimize.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.identity.auth.optimize "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:734
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:988
     - old: global.license.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.license "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:651
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:905
     - old: global.license.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.license "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:656
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:910
     - old: global.license.key
       action: removed
       trigger: presence
       condition: hasKey .Values.global.license "key"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:646
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:900
     - old: global.opensearch.auth.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.global.opensearch.auth "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:693
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:947
     - old: global.opensearch.auth.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.global.opensearch.auth "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:698
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:952
     - old: global.opensearch.auth.password
       action: removed
       trigger: presence
       condition: hasKey .Values.global.opensearch.auth "password"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:688
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:942
     - old: global.secrets.annotations
       action: removed
       trigger: unknown
       condition: and .Values.global.secrets (hasKey .Values.global.secrets "annotations")
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:920
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1174
     - old: global.secrets.autoGenerated
       action: removed
       trigger: unknown
       condition: and .Values.global.secrets .Values.global.secrets.autoGenerated
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:910
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1164
     - old: global.secrets.name
       action: removed
       trigger: unknown
       condition: and .Values.global.secrets (hasKey .Values.global.secrets "name")
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:915
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1169
     - old: identity.externalDatabase.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.externalDatabase "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:798
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1052
     - old: identity.externalDatabase.existingSecretPasswordKey
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.externalDatabase "existingSecretPasswordKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:803
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1057
     - old: identity.externalDatabase.password
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.externalDatabase "password"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:793
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1047
     - old: identity.firstUser.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.firstUser "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:783
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1037
     - old: identity.firstUser.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.firstUser "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:788
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1042
     - old: identity.firstUser.password
       action: removed
       trigger: presence
       condition: hasKey .Values.identity.firstUser "password"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:778
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1032
     - old: orchestration.security.authentication.oidc.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.orchestration.security.authentication.oidc "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:838
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1092
     - old: orchestration.security.authentication.oidc.existingSecretKey
       action: removed
       trigger: presence
       condition: hasKey .Values.orchestration.security.authentication.oidc "existingSecretKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:843
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1097
     - old: webModeler.restapi.externalDatabase.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:863
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1117
     - old: webModeler.restapi.externalDatabase.existingSecretPasswordKey
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "existingSecretPasswordKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:868
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1122
     - old: webModeler.restapi.externalDatabase.password
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.externalDatabase "password"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:858
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1112
     - old: webModeler.restapi.mail.existingSecret
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.mail "existingSecret"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:878
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1132
     - old: webModeler.restapi.mail.existingSecretPasswordKey
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.mail "existingSecretPasswordKey"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:883
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1137
     - old: webModeler.restapi.mail.smtpPassword
       action: removed
       trigger: presence
       condition: hasKey .Values.webModeler.restapi.mail "smtpPassword"
-      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:873
+      source: charts/camunda-platform-8.9/templates/common/constraints.tpl:1127
